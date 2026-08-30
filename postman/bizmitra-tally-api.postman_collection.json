@@ -1,0 +1,2599 @@
+{
+  "info": {
+    "name": "Bizmitra Tally API — Public Examples",
+    "description": "Public examples for the Bizmitra Tally API. Set key_id, secret, company_id, and application_id after import. Never export or commit personal values. Authentication uses Bearer {{key_id}}:{{secret}}.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Sync invoice",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Bizmitra-Company",
+            "value": "{{company_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"event_type\": \"invoice_create\",\n    \"request_type\": \"in\",\n    \"invoice\": {\n        \"voucher_type\": \"Sales\",\n        \"voucher_number\": \"Si/2/20\",\n        \"date\": \"2026-05-01\",\n        \"reference\": \"test\",\n        \"narration\": \"\",\n        \"party_ledger\": \"Test Pvt Ltd\",\n        \"customer_Address1\": \"\",\n        \"purchase_order_number\": \"9797\",\n        \"purchase_order_date\": \"01-05-2026\",\n        \"gst\": {\n            \"registration_type\": \"Regular\",\n            \"place_of_supply\": \"Gujarat\",\n            \"state\": \"Gujarat\",\n            \"party_gstin\": \"24AAxxxxxx1ZQ\"\n        },\n        \"inventory_entries\": [\n            {\n                \"stock_item\": \"Item moreover\",\n                \"qty\": 100,\n                \"rate\": 12,\n                \"amount\": 1200,\n                \"unit\": \"nos\",\n                \"godown\": \"Main Location\",\n                \"hsn\": \"33345\",\n                \"taxability\": \"Taxable\",\n                \"gst_rates\": [\n                    {\n                        \"duty_head\": \"CGST\",\n                        \"rate\": 9\n                    },\n                    {\n                        \"duty_head\": \"SGST/UTGST\",\n                        \"rate\": 9\n                    }\n                ],\n                \"accounting_allocations\": [\n                    {\n                        \"ledger_name\": \"Sales\",\n                        \"amount\": 1200\n                    }\n                ],\n                \"batch_details\": [\n                    {\n                        \"batch_no\": \"101\",\n                        \"godown\": \"Main Location\",\n                        \"qty\": 100,\n                        \"amount\": 1200,\n                        \"mfg_date\": \"2026-05-01\",\n                        \"expiry_date\": \"31-03-2027\",\n                        \"order_no\": null,\n                        \"order_due_date\": null\n                    }\n                ]\n            }\n        ],\n        \"ledger_entries\": [\n            {\n                \"ledger_name\": \"Test Pvt Ltd\",\n                \"amount\": -1416,\n                \"is_party\": true\n            },\n            {\n                \"ledger_name\": \"Cgst\",\n                \"amount\": 108,\n                \"is_tax\": true\n            },\n            {\n                \"ledger_name\": \"Sgst\",\n                \"amount\": 108,\n                \"is_tax\": true\n            }\n        ]\n    }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/invoices",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "invoices"
+          ]
+        },
+        "description": "Push a Tally-ready invoice payload to the sync bridge.\n\nSends an invoice straight through to the sync bridge — Bizmitra stores nothing on this path. The `invoice` body uses the UNIFIED voucher shape: nested `gst`, `inventory_entries[]` (each with its income `accounting_allocations`), and `ledger_entries[]` that INCLUDES the party line (`is_party: true`, negative tax-inclusive amount). GST is not auto-computed — the party amount must equal −(item + tax lines). The legacy shape (`voucherType`/`order_date`/`customer_name`/`invtotal`/`invoice_items`/`invoice_ledgers`/flat `gst_*`) is still accepted; unified keys win if both are sent. `request_type` sets the direction: `in` = import into Tally (default), `out` = export. A server-generated `transaction_id` is returned for correlating status callbacks. Watch the date formats — see the payload schema."
+      },
+      "response": []
+    },
+    {
+      "name": "Sync sales order",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Bizmitra-Company",
+            "value": "{{company_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"event_type\": \"order_create\",\n    \"request_type\": \"in\",\n    \"order\": {\n        \"voucher_type\": \"Sales Order\",\n        \"voucher_number\": \"SO/016\",\n        \"date\": \"2026-05-01\",\n        \"reference\": \"PO-ACME-9981\",\n        \"narration\": \"Demo order\",\n        \"party_ledger\": \"Customer A\",\n        \"gst\": {\n            \"registration_type\": \"Regular\",\n            \"place_of_supply\": \"Gujarat\",\n            \"state\": \"Gujarat\",\n            \"party_gstin\": \"24AAGxxxxxxxxZQ\"\n        },\n        \"inventory_entries\": [\n            {\n                \"stock_item\": \"Item A New\",\n                \"qty\": 100,\n                \"rate\": 12,\n                \"amount\": 1200,\n                \"unit\": \"nos\",\n                \"godown\": \"Gandhinagar\",\n                \"hsn\": \"33345\",\n                \"taxability\": \"Taxable\",\n                \"gst_rates\": [\n                    {\n                        \"duty_head\": \"CGST\",\n                        \"rate\": 9\n                    },\n                    {\n                        \"duty_head\": \"SGST/UTGST\",\n                        \"rate\": 9\n                    }\n                ],\n                \"accounting_allocations\": [\n                    {\n                        \"ledger_name\": \"Sales\",\n                        \"amount\": 1200\n                    }\n                ],\n                \"batch_details\": [\n                    {\n                        \"batch_no\": \"101\",\n                        \"godown\": \"Gandhinagar\",\n                        \"qty\": 100,\n                        \"amount\": 1200,\n                        \"order_no\": \"SO/016\",\n                        \"order_due_date\": \"15-05-2026\"\n                    }\n                ]\n            }\n        ],\n        \"ledger_entries\": [\n            {\n                \"ledger_name\": \"Customer A\",\n                \"amount\": -1416,\n                \"is_party\": true\n            },\n            {\n                \"ledger_name\": \"Cgst\",\n                \"amount\": 108,\n                \"is_tax\": true\n            },\n            {\n                \"ledger_name\": \"Sgst\",\n                \"amount\": 108,\n                \"is_tax\": true\n            }\n        ]\n    }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/orders",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "orders"
+          ]
+        },
+        "description": "Push a Tally-ready Sales Order payload to the sync bridge.\n\nThe order sibling of `Sync invoice`: same path, same auth, same UNIFIED body (keyed `order` instead of `invoice`) — nested `gst`, `inventory_entries[]` with `accounting_allocations`, and `ledger_entries[]` including the party line. Order-only: `voucher_type` is `Sales Order` and a top-level `reference` is REQUIRED; set `order_no`/`order_due_date` on a batch for Tally order-tracking. Legacy keys (`voucherType`/`order_date`/`customer_name`/`invoice_items`/`invoice_ledgers`/flat `gst_*`) are still accepted; unified keys win. Bizmitra stores nothing on this path. `request_type` sets the direction (`in` default / `out`). A server-generated `transaction_id` is returned for correlating status callbacks."
+      },
+      "response": []
+    },
+    {
+      "name": "Sync credit note",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Bizmitra-Company",
+            "value": "{{company_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"event_type\": \"credit_note_create\",\n    \"voucher\": {\n        \"voucher_type\": \"Credit Note\",\n        \"voucher_number\": \"CN/7\",\n        \"date\": \"2026-07-01\",\n        \"party_ledger\": \"Test Pvt Ltd\",\n        \"inventory_entries\": [\n            {\n                \"stock_item\": \"iPhone\",\n                \"qty\": 2,\n                \"rate\": 5000,\n                \"amount\": 10000,\n                \"unit\": \"Nos\",\n                \"godown\": \"Main Location\",\n                \"accounting_allocations\": [\n                    {\n                        \"ledger_name\": \"Sales Account\",\n                        \"amount\": 10000\n                    }\n                ],\n                \"batch_details\": [\n                    {\n                        \"batch_no\": \"B-001\",\n                        \"godown\": \"Main Location\",\n                        \"qty\": 2,\n                        \"amount\": 10000\n                    }\n                ]\n            }\n        ],\n        \"ledger_entries\": [\n            {\n                \"ledger_name\": \"test Pvt Ltd\",\n                \"amount\": 11800,\n                \"is_party\": true\n            },\n            {\n                \"ledger_name\": \"CGST\",\n                \"amount\": 900,\n                \"is_tax\": true\n            },\n            {\n                \"ledger_name\": \"SGST\",\n                \"amount\": 900,\n                \"is_tax\": true\n            }\n        ]\n    }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/credit-notes",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "credit-notes"
+          ]
+        },
+        "description": "Push a credit note (invoice-shaped, positive magnitudes) to Tally.\n\nTrading voucher — same invoice-shaped body as `Sync invoice` (items + party + tax lines under `voucher`), sent as POSITIVE magnitudes; the endpoint applies the credit-note direction (party credited, items/taxes debited). You never encode the signs. Body accepted under `voucher` (primary) or `invoice` (alias — a pulled payload pushes straight back). `event_type` defaults to `credit_note_create`. Poll status with `job_type=credit_note_sync`, then pair on `tally_voucher_guid`."
+      },
+      "response": []
+    },
+    {
+      "name": "Sync debit note",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Bizmitra-Company",
+            "value": "{{company_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"event_type\": \"debit_note_create\",\n    \"voucher\": {\n        \"voucher_type\": \"Debit Note\",\n        \"voucher_number\": \"DN/4\",\n        \"date\": \"2026-07-01\",\n        \"party_ledger\": \"test Pvt Ltd\",\n        \"inventory_entries\": [\n            {\n                \"stock_item\": \"iPhone\",\n                \"qty\": 2,\n                \"rate\": 5000,\n                \"amount\": 10000,\n                \"unit\": \"Nos\",\n                \"godown\": \"Main Location\",\n                \"accounting_allocations\": [\n                    {\n                        \"ledger_name\": \"Sales Account\",\n                        \"amount\": 10000\n                    }\n                ]\n            }\n        ],\n        \"ledger_entries\": [\n            {\n                \"ledger_name\": \"test Pvt Ltd\",\n                \"amount\": 11800,\n                \"is_party\": true\n            },\n            {\n                \"ledger_name\": \"CGST\",\n                \"amount\": 900,\n                \"is_tax\": true\n            },\n            {\n                \"ledger_name\": \"SGST\",\n                \"amount\": 900,\n                \"is_tax\": true\n            }\n        ]\n    }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/debit-notes",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "debit-notes"
+          ]
+        },
+        "description": "Push a debit note (invoice-shaped) to Tally.\n\nTrading voucher — same invoice-shaped body as `Sync invoice`, sent as POSITIVE magnitudes; the endpoint applies the debit-note direction (party debited, items/taxes positive — same sides as a sales invoice). Body under `voucher` (or `invoice`). `event_type` defaults to `debit_note_create`. Poll status with `job_type=debit_note_sync`."
+      },
+      "response": []
+    },
+    {
+      "name": "Sync purchase",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Bizmitra-Company",
+            "value": "{{company_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"event_type\": \"purchase_create\",\n    \"voucher\": {\n        \"voucher_type\": \"Purchase\",\n        \"voucher_number\": \"PUR/12\",\n        \"date\": \"2026-07-01\",\n        \"party_ledger\": \"Test Traders\",\n        \"inventory_entries\": [\n            {\n                \"stock_item\": \"iPhone\",\n                \"qty\": 2,\n                \"rate\": 5000,\n                \"amount\": 10000,\n                \"unit\": \"Nos\",\n                \"godown\": \"Main Location\",\n                \"accounting_allocations\": [\n                    {\n                        \"ledger_name\": \"Local Purchase\",\n                        \"amount\": 10000\n                    }\n                ],\n                \"batch_details\": [\n                    {\n                        \"batch_no\": \"B-001\",\n                        \"godown\": \"Main Location\",\n                        \"qty\": 2,\n                        \"amount\": 10000\n                    }\n                ]\n            }\n        ],\n        \"ledger_entries\": [\n            {\n                \"ledger_name\": \"Test Traders\",\n                \"amount\": 11800,\n                \"is_party\": true\n            },\n            {\n                \"ledger_name\": \"CGST\",\n                \"amount\": 900,\n                \"is_tax\": true\n            },\n            {\n                \"ledger_name\": \"SGST\",\n                \"amount\": 900,\n                \"is_tax\": true\n            }\n        ]\n    }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/purchases",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "purchases"
+          ]
+        },
+        "description": "Push a purchase voucher (invoice-shaped) to Tally.\n\nTrading voucher — same invoice-shaped body as `Sync invoice`, sent as POSITIVE magnitudes; the endpoint applies the purchase direction (party credited, items/taxes debited). Point the item's `accounting_allocations` at your PURCHASE/expense ledger (e.g. \"Local Purchase\"). Body under `voucher` (or `invoice`). `event_type` defaults to `purchase_create`. Poll status with `job_type=purchase_sync`."
+      },
+      "response": []
+    },
+    {
+      "name": "Sync receipt",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Bizmitra-Company",
+            "value": "{{company_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"event_type\": \"receipt_create\",\n    \"voucher\": {\n        \"voucher_type\": \"Receipt\",\n        \"voucher_number\": \"3\",\n        \"date\": \"2026-04-01\",\n        \"party_ledger\": \"Mkr\",\n        \"ledger_entries\": [\n            {\n                \"ledger_name\": \"ABC Bank\",\n                \"amount\": 36000,\n                \"is_debit\": true\n            },\n            {\n                \"ledger_name\": \"Mkr\",\n                \"amount\": 36000,\n                \"is_debit\": false,\n                \"is_party\": true\n            }\n        ]\n    }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/receipts",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "receipts"
+          ]
+        },
+        "description": "Push a receipt voucher (ledger_entries + is_debit) to Tally.\n\nAccounting voucher — no inventory header. The body is just `ledger_entries[]`, each line carrying its own direction via `is_debit` (bank/cash debited, party credited). Mark the party/bank line `is_party`. Body under `voucher` (or `invoice`). `event_type` defaults to `receipt_create`. Poll status with `job_type=receipt_sync`."
+      },
+      "response": []
+    },
+    {
+      "name": "Sync payment",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Bizmitra-Company",
+            "value": "{{company_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"event_type\": \"payment_create\",\n    \"voucher\": {\n        \"voucher_type\": \"Payment\",\n        \"voucher_number\": \"1\",\n        \"date\": \"2026-07-01\",\n        \"party_ledger\": \"ABC Bank\",\n        \"narration\": \"June 2026 Rent\",\n        \"ledger_entries\": [\n            {\n                \"ledger_name\": \"Rent\",\n                \"amount\": 7500,\n                \"is_debit\": true\n            },\n            {\n                \"ledger_name\": \"ABC Bank\",\n                \"amount\": 7500,\n                \"is_debit\": false,\n                \"is_party\": true,\n                \"bank_allocations\": [\n                    {\n                        \"transaction_type\": \"Cheque\",\n                        \"instrument_date\": \"2026-07-01\",\n                        \"payment_favouring\": \"Rent\",\n                        \"cheque_cross_comment\": \"A/c Payee\",\n                        \"unique_reference\": \"5UDgD49cf8PaaaoY\",\n                        \"payment_mode\": \"Transacted\"\n                    }\n                ]\n            }\n        ]\n    }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/payments",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "payments"
+          ]
+        },
+        "description": "Push a payment voucher (ledger_entries + is_debit, optional cheque) to Tally.\n\nAccounting voucher — `ledger_entries[]` with per-line `is_debit` (expense/party debited, bank/cash credited). A bank line may carry `bank_allocations[]` for cheque / transfer details (`transaction_type` is REQUIRED for the allocation to be emitted). Body under `voucher` (or `invoice`). `event_type` defaults to `payment_create`. Poll status with `job_type=payment_sync`."
+      },
+      "response": []
+    },
+    {
+      "name": "Sync contra",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Bizmitra-Company",
+            "value": "{{company_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"event_type\": \"contra_create\",\n    \"voucher\": {\n        \"voucher_type\": \"Contra\",\n        \"voucher_number\": \"3\",\n        \"date\": \"2026-04-01\",\n        \"party_ledger\": \"ABC Bank\",\n        \"ledger_entries\": [\n            {\n                \"ledger_name\": \"ABC Bank\",\n                \"amount\": 8500,\n                \"is_debit\": false,\n                \"is_party\": true,\n                \"bank_allocations\": [\n                    {\n                        \"transaction_type\": \"Cheque\",\n                        \"instrument_date\": \"2026-04-01\"\n                    }\n                ]\n            },\n            {\n                \"ledger_name\": \"Xyz Bank\",\n                \"amount\": 8500,\n                \"is_debit\": true,\n                \"bank_allocations\": [\n                    {\n                        \"transaction_type\": \"Cheque/DD\",\n                        \"instrument_date\": \"2026-04-01\"\n                    }\n                ]\n            }\n        ]\n    }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/contras",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "contras"
+          ]
+        },
+        "description": "Push a contra voucher (bank ↔ bank / cash) to Tally.\n\nAccounting voucher — `ledger_entries[]` with per-line `is_debit`: one bank/cash debited, the other credited. Each bank line may carry `bank_allocations[]`. Body under `voucher` (or `invoice`). `event_type` defaults to `contra_create`. Poll status with `job_type=contra_sync`."
+      },
+      "response": []
+    },
+    {
+      "name": "Sync journal",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Bizmitra-Company",
+            "value": "{{company_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"event_type\": \"journal_create\",\n    \"voucher\": {\n        \"voucher_type\": \"Journal\",\n        \"voucher_number\": \"2\",\n        \"date\": \"2026-04-01\",\n        \"party_ledger\": \"Mkr\",\n        \"ledger_entries\": [\n            {\n                \"ledger_name\": \"Local Purchase\",\n                \"amount\": 20250,\n                \"is_debit\": true,\n                \"inventory_allocations\": [\n                    {\n                        \"stock_item\": \"Maggie\",\n                        \"qty\": 15,\n                        \"unit\": \"kg\",\n                        \"rate\": 1350,\n                        \"amount\": 20250,\n                        \"batch_details\": [\n                            {\n                                \"batch_no\": \"10\",\n                                \"godown\": \"Main Location\",\n                                \"qty\": 15,\n                                \"amount\": 20250\n                            }\n                        ]\n                    }\n                ]\n            },\n            {\n                \"ledger_name\": \"Mkr\",\n                \"amount\": 20250,\n                \"is_debit\": false,\n                \"is_party\": true\n            }\n        ]\n    }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/journals",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "journals"
+          ]
+        },
+        "description": "Push a journal voucher (balanced ledger_entries, optional stock) to Tally.\n\nAccounting voucher — `ledger_entries[]` per your double-entry, each line with `is_debit`; the lines MUST balance. A ledger line may carry `inventory_allocations[]` to track stock against it (stock journal). Body under `voucher` (or `invoice`). `event_type` defaults to `journal_create`. Poll status with `job_type=journal_sync`."
+      },
+      "response": []
+    },
+    {
+      "name": "List transaction status",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/transactions?company_id={{company_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "transactions"
+          ],
+          "query": [
+            {
+              "key": "company_id",
+              "value": "{{company_id}}"
+            },
+            {
+              "key": "transaction_id",
+              "value": "SO-2026-45",
+              "description": "Exact match on your push reference — omit for all.",
+              "disabled": true
+            },
+            {
+              "key": "job_type",
+              "value": "order_sync",
+              "description": "invoice_sync | order_sync. Omit for both.",
+              "disabled": true
+            },
+            {
+              "key": "status",
+              "value": "failed",
+              "description": "pending | reserved | completed | failed | dead_letter.",
+              "disabled": true
+            },
+            {
+              "key": "since_id",
+              "value": "0",
+              "description": "Only rows after this id.",
+              "disabled": true
+            },
+            {
+              "key": "limit",
+              "value": "50",
+              "description": "Page size (max 200).",
+              "disabled": true
+            },
+            {
+              "key": "offset",
+              "value": "0",
+              "description": "Page offset.",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Poll the status of your pushed invoices/orders — completed, still pending, or failed with the reason.\n\nThe READ side of `Sync invoice` / `Sync sales order` (symmetric to `List master jobs`). Lists your voucher-sync jobs and where each one is: a stuck job shows `pending`/`reserved`, a broken one `failed`/`dead_letter` with the Tally error. Filters (all optional): `transaction_id` (exact — look up one push by your own reference), `job_type` (`invoice_sync` | `order_sync` — omit for both), `company_id` (one of your company `id`s), `status` (`pending` | `reserved` | `completed` | `failed` | `dead_letter`), `since_id`, `limit` (≤200), `offset`. Use `Get transaction status` for one job's pushed payload + raw Tally reply. Nothing is stored in Bizmitra; the job store lives behind the sync bridge."
+      },
+      "response": []
+    },
+    {
+      "name": "Get transaction status",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/transactions/:job",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "transactions",
+            ":job"
+          ],
+          "variable": [
+            {
+              "key": "job",
+              "value": "",
+              "description": "Path parameter — fill in before sending."
+            }
+          ]
+        },
+        "description": "One sync job in full — status, the payload you pushed, and the raw Tally response.\n\nReturns the same record as the list item PLUS `payload` (the voucher body you pushed) and `tally_response_xml` (Tally's raw reply — the place to read a rejection). `{job}` is the `job_id` from `Sync invoice`/`Sync sales order` or the list endpoint. Scoped to your developer account, so a job outside your scope returns not-found."
+      },
+      "response": []
+    },
+    {
+      "name": "List pulled vouchers",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/pulled-vouchers?company_id={{company_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "pulled-vouchers"
+          ],
+          "query": [
+            {
+              "key": "company_id",
+              "value": "{{company_id}}"
+            },
+            {
+              "key": "voucher_kind",
+              "value": "sales",
+              "description": "PREFERRED — coarse standard kind (snake_case): sales, sales_order, purchase, purchase_order, payment, receipt, contra, journal, debit_note, credit_note, stock_journal, delivery_note, receipt_note, other. Matches custom/renamed types (e.g. \"Mumbai Sales\" → sales). Omit for all.",
+              "disabled": true
+            },
+            {
+              "key": "voucher_type",
+              "value": "Sales",
+              "description": "Exact Tally type name (may be custom, e.g. \"Mumbai Sales\"). Precise single-type match only — prefer voucher_kind.",
+              "disabled": true
+            },
+            {
+              "key": "status",
+              "value": "pending",
+              "description": "Filter by status (default pending).",
+              "disabled": true
+            },
+            {
+              "key": "start_date",
+              "value": "2026-07-01",
+              "description": "Inclusive start of the voucher-date window (YYYY-MM-DD).",
+              "disabled": true
+            },
+            {
+              "key": "end_date",
+              "value": "2026-07-31",
+              "description": "Inclusive end of the voucher-date window (YYYY-MM-DD).",
+              "disabled": true
+            },
+            {
+              "key": "voucher_number",
+              "value": "",
+              "description": "Match a voucher number (partial match).",
+              "disabled": true
+            },
+            {
+              "key": "q",
+              "value": "",
+              "description": "Free-text search over voucher number + party/narration.",
+              "disabled": true
+            },
+            {
+              "key": "sort",
+              "value": "end_date",
+              "description": "Sort field: end_date (voucher date, default) | start_date | voucher_number | received_at.",
+              "disabled": true
+            },
+            {
+              "key": "order",
+              "value": "desc",
+              "description": "Sort direction: desc (default) | asc.",
+              "disabled": true
+            },
+            {
+              "key": "limit",
+              "value": "50",
+              "description": "Page size (max 500). Ordered by voucher date, newest first, by default.",
+              "disabled": true
+            },
+            {
+              "key": "offset",
+              "value": "0",
+              "description": "Page offset.",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Poll for ANY Tally-originated vouchers waiting to be consumed — filter by voucher_kind (metadata only, no XML).\n\nThe inverse of the push side: lists ALL voucher types your customer's paired Connector pushed up from Tally. This is ONE type-neutral endpoint — narrow it with a filter rather than calling a per-type URL.\n\n**Filter by `voucher_kind`, not `voucher_type`.** In Tally, `voucher_type` is the EXACT type name and is user-customizable — a company may name its sales voucher `Mumbai Sales` or `Sales Auto Voucher`, so filtering on the literal string silently misses custom types. `voucher_kind` is a COARSE, standard kind (snake_case) the Connector derives for every row: `sales`, `sales_order`, `purchase`, `purchase_order`, `payment`, `receipt`, `contra`, `journal`, `debit_note`, `credit_note`, `stock_journal`, `delivery_note`, `receipt_note`, `other`. It matches custom/renamed types (`Mumbai Sales` → `sales`), so `voucher_kind=sales` returns every sales voucher regardless of its display name.\n\nParams: `company_id` (REQUIRED — one of your company `id`s; poll each company separately), `voucher_kind` (PREFERRED — from the list above), `voucher_type` (exact name; precise single-type match only), `status` (default `pending`), `start_date`/`end_date` (inclusive voucher-date window, e.g. `2026-03-01`), `voucher_number` (exact-or-partial match), `q` (free-text search over voucher number / party / narration), `sort` (`end_date` | `start_date` | `voucher_number` | `received_at`) + `order` (`asc` | `desc`), `limit` (≤500), `offset`. Rows come back ordered by `end_date` desc (newest first) unless you override `sort`/`order`.\n\n**[beta] Filtering is connector-side.** `start_date`, `end_date`, `voucher_number`, `q`, `sort` and `order` are forwarded to the pull bridge and only take effect where the connector supports them; against an older connector they are ignored (you get the unfiltered, default-ordered page). `company_id`, `status`, `voucher_kind`, `voucher_type`, `limit` and `offset` always apply. Each row carries both `voucher_type` (exact) and `voucher_kind` (coarse). Nothing is stored in Bizmitra. The response array is keyed `invoices` but contains EVERY voucher type. (Replaces the old `pulled-invoices`/`pulled-orders` names — those routes still resolve.)"
+      },
+      "response": []
+    },
+    {
+      "name": "Get pulled voucher",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/pulled-vouchers/:transaction_id?company_id={{company_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "pulled-vouchers",
+            ":transaction_id"
+          ],
+          "query": [
+            {
+              "key": "company_id",
+              "value": "{{company_id}}"
+            }
+          ],
+          "variable": [
+            {
+              "key": "transaction_id",
+              "value": "",
+              "description": "Path parameter — fill in before sending."
+            }
+          ]
+        },
+        "description": "Fetch one pulled voucher (any type) with its full Tally XML.\n\nReturns the complete record for one pulled voucher of ANY type, including `invoice_xml` (and `print_xml` when present) — the actual Tally voucher to consume. The `invoice`/`invoice_xml` keys are historical wire names; the record holds any voucher type (its `voucher_type` says which). Requires `company_id` (your DeveloperCompany id) as a query param. `{transaction_id}` is the `transaction_id` from the list endpoint; rows are scoped to your developer account + company, so a transaction_id outside your company simply returns not-found."
+      },
+      "response": []
+    },
+    {
+      "name": "Acknowledge pulled vouchers",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"company_id\": xx,\n    \"transaction_ids\": [\n        \"SLS-2026-36\",\n        \"SLS-2026-37\"\n    ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/pulled-vouchers/ack",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "pulled-vouchers",
+            "ack"
+          ]
+        },
+        "description": "Mark pulled vouchers (any type) consumed so they stop returning as pending.\n\nFlips the given rows `pending` → `synced` regardless of voucher type. Requires `company_id` (your DeveloperCompany id) and `transaction_ids` — a non-empty array of the `transaction_id`s returned by the list endpoint. Idempotent: acking an already-synced row is a no-op. This closes the poll → fetch → ack loop."
+      },
+      "response": []
+    },
+    {
+      "name": "Read stock summary (all items)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Bizmitra-Company",
+            "value": "{{company_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/stock-summary?company_id={{company_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "stock-summary"
+          ],
+          "query": [
+            {
+              "key": "company_id",
+              "value": "{{company_id}}"
+            },
+            {
+              "key": "as_of_date",
+              "value": "current",
+              "description": "Pin one snapshot: \"current\" or a Tally yyyymmdd. Omit for the live row.",
+              "disabled": true
+            },
+            {
+              "key": "limit",
+              "value": "50",
+              "description": "Page size (max 200).",
+              "disabled": true
+            },
+            {
+              "key": "offset",
+              "value": "0",
+              "description": "Page offset.",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Closing qty/rate/amount per item — the all-items snapshot the connector pushes on a timer.\n\nReads the all-items closing-stock snapshot for one company (the connector pushes it on its own cadence — no request needed). Params: `company_id` (REQUIRED — your DeveloperCompany id), `as_of_date` (Tally yyyymmdd, or `current`; omit for the live row), `limit`/`offset`. Numbers come back parsed (`closing_qty_number`/`closing_rate`/`closing_amount`); `closing_qty` keeps the raw text with its unit. Values can be negative; qty may be null for amount-only items.\n\nEach row also carries `item_guid` + `parent_guid` (link to its node in `GET /api/v1/stock-tree` — rename-safe; null until the item's masters are pulled), plus provenance `refresh_reason` (`initial` | `change` | `timer`) and `source`. Terminal in Flask — nothing is stored in Bizmitra."
+      },
+      "response": []
+    },
+    {
+      "name": "Read stock monthly (one item)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Bizmitra-Company",
+            "value": "{{company_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/stock/monthly?company_id={{company_id}}&item_name=Item A New",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "stock",
+            "monthly"
+          ],
+          "query": [
+            {
+              "key": "company_id",
+              "value": "{{company_id}}"
+            },
+            {
+              "key": "item_name",
+              "value": "Item A New",
+              "description": "REQUIRED — Exact Tally stock item name."
+            },
+            {
+              "key": "range_key",
+              "value": "current",
+              "description": "\"from:to\" (the window you requested) or \"current\".",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Read one item's 12-month in/out/closing summary.\n\nReads the stored monthly summary for one item — all 12 months of the financial year. The connector auto-pulls stock drill-downs, so no request step is needed; just read. Params: `company_id` (REQUIRED), `item_name` (REQUIRED), `range_key` (`from:to` or `current`). Numbers parsed alongside the raw text."
+      },
+      "response": []
+    },
+    {
+      "name": "Read stock group tree",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Bizmitra-Company",
+            "value": "{{company_id}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/stock-tree",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "stock-tree"
+          ]
+        },
+        "description": "Nested stock-group hierarchy (arbitrary depth), built from the stock masters.\n\nReads the company's stock-group hierarchy as a nested tree (`children` recurses to any depth). Params: `company_id` (REQUIRED). Each node has `guid` (stable, rename-safe), `name`, `kind` (`group` | `item`), `parent_guid` (null at root — Tally's implicit Primary), and Tally's OWN `closing_qty` / `closing_value` (no self-rollup; group `closing_qty` is null when it mixes units). Join a `stock-summary` item to its node via `item_guid`, then walk `parent_guid` up to the root for the full chain.\n\nBuilt from the stock MASTERS, not the flat Stock Summary report — so a POPULATED tree needs BOTH the `report.stock` grant AND `pull.master` (the masters the tree is assembled from). With `report.stock` but not `pull.master`, this returns an EMPTY tree (`node_count: 0`), not an error. Terminal in Flask — nothing is stored in Bizmitra."
+      },
+      "response": []
+    },
+    {
+      "name": "Read stock vouchers (one item)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Bizmitra-Company",
+            "value": "{{company_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/stock/vouchers?company_id={{company_id}}&item_name=Item A New",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "stock",
+            "vouchers"
+          ],
+          "query": [
+            {
+              "key": "company_id",
+              "value": "{{company_id}}"
+            },
+            {
+              "key": "item_name",
+              "value": "Item A New",
+              "description": "REQUIRED — Exact Tally stock item name."
+            },
+            {
+              "key": "range_key",
+              "value": "20260401:20260430",
+              "description": "\"from:to\" — the window you requested.",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Read one item's voucher-wise movement over a range.\n\nReads the stored voucher-wise movement for one item over a date range. The connector auto-pulls stock drill-downs, so no request step is needed; just read. Params: `company_id` (REQUIRED), `item_name` (REQUIRED), `range_key` (`from:to`). Each row carries date/party/voucher_type/voucher_number and parsed inwards/outwards numbers."
+      },
+      "response": []
+    },
+    {
+      "name": "Read funds flow (12 months)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Bizmitra-Company",
+            "value": "{{company_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/funds-flow",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "funds-flow"
+          ],
+          "query": [
+            {
+              "key": "range_key",
+              "value": "current",
+              "description": "\"from:to\" or \"current\" (almost always \"current\" — the report ignores dates).",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Read the stored month-by-month funds flow (opening / closing / funds flow).\n\nReads the stored monthly funds flow for one company. The connector auto-pulls it on a timer (like stock) — no request step, just read. Params: `company_id` (REQUIRED), `range_key` (`from:to` or `current` — almost always `current`, since the report ignores dates). Always 12 rows (April..March); unposted months come back with null amounts but a real `period`. `*_number` fields are parsed numbers; Tally Dr balances are signed negative — take `abs()` to match the on-screen figure. Terminal in Flask — nothing is stored in Bizmitra."
+      },
+      "response": []
+    },
+    {
+      "name": "Refresh Profit & Loss",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Bizmitra-Company",
+            "value": "{{company_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"company_id\": xx\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/profit-loss/refresh",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "profit-loss",
+            "refresh"
+          ]
+        },
+        "description": "Enqueue a Profit & Loss A/c pull; read it back after the connector polls.\n\nEnqueues a Profit & Loss pull for one company; the paired Connector runs it on its next poll, then read via `GET /api/v1/profit-loss`. Async — returns a `job_id`. Body: `company_id` (REQUIRED), `transaction_id` (optional idempotency key). NB: the report IGNORES the date window — it always returns the FULL company period; single-month P&L via export is not possible. Needs the `report.financials` capability."
+      },
+      "response": []
+    },
+    {
+      "name": "Read Profit & Loss",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Bizmitra-Company",
+            "value": "{{company_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/profit-loss",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "profit-loss"
+          ],
+          "query": [
+            {
+              "key": "range_key",
+              "value": "current",
+              "description": "\"from:to\" or \"current\".",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Read the stored Profit & Loss A/c line items (full company period).\n\nReads the stored P&L line items for one company (trigger it first via `POST /api/v1/profit-loss/refresh`). Params: `company_id` (REQUIRED), `range_key` (`current`). Two-column layout: each line has EITHER `sub_amount` (a sub-line like Opening/Closing Stock) OR `main_amount` (a main total like Sales / Cost of Sales), not both; `*_number` fields are parsed. Full company period only — the date window is ignored. Terminal in Flask — nothing is stored in Bizmitra."
+      },
+      "response": []
+    },
+    {
+      "name": "Read TDS summary (per party)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Bizmitra-Company",
+            "value": "{{company_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/tds-summary",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "tds-summary"
+          ],
+          "query": [
+            {
+              "key": "as_of_date",
+              "value": "current",
+              "description": "\"current\" or a Tally yyyymmdd. Omit for the live row.",
+              "disabled": true
+            },
+            {
+              "key": "tds_ledger",
+              "value": "Tds Payable on Job Work",
+              "description": "Narrow to one TDS ledger. Omit for all.",
+              "disabled": true
+            },
+            {
+              "key": "limit",
+              "value": "500",
+              "description": "Page size (max 2000).",
+              "disabled": true
+            },
+            {
+              "key": "offset",
+              "value": "0",
+              "description": "Page offset.",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Per-party TDS-outstanding snapshot the connector pushes on a timer.\n\nReads the per-party TDS-payable snapshot for one company (the connector pushes it on its own cadence — no request needed). Params: `company_id` (REQUIRED — your DeveloperCompany id), `as_of_date` (Tally yyyymmdd or `current`; omit for the live row), `tds_ledger` (narrow to one TDS ledger), `limit`/`offset` (default 500, max 2000). `closing_amount`/`*_number` are parsed numbers. NB: the per-party split only exists when the TDS ledger is bill-by-bill with deductee-tagged entries — otherwise a single `party = \"On Account\"` bucket is returned. The snapshot is upserted, not pruned: a fully-paid party stops being sent but its last row is NOT deleted — use `updated_at`/`as_of_date` for freshness. Terminal in Flask — nothing stored in Bizmitra."
+      },
+      "response": []
+    },
+    {
+      "name": "Refresh TDS bills (one party)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Bizmitra-Company",
+            "value": "{{company_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"company_id\": xx,\n    \"tds_ledger\": \"Tds Payable on Job Work\",\n    \"party\": \"Contract Amar\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/tds/bills/refresh",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "tds",
+            "bills",
+            "refresh"
+          ]
+        },
+        "description": "Enqueue a bill-wise TDS pull for one party under a TDS ledger.\n\nEnqueues a bill-wise TDS breakup for ONE party; the paired Connector runs it on its next poll (~seconds), then read via `GET /api/v1/tds/bills`. Async — returns a `job_id`. Body: `company_id` (REQUIRED), `tds_ledger` (REQUIRED), `party` (REQUIRED), `from_date`/`to_date` (Tally yyyymmdd, optional), `transaction_id` (optional idempotency key). A repeat request for the same ledger+party+window REPLACES the stored rows. Needs the `report.tds` capability."
+      },
+      "response": []
+    },
+    {
+      "name": "Read TDS bills (one party)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Bizmitra-Company",
+            "value": "{{company_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/tds/bills?party=Contract Amar",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "tds",
+            "bills"
+          ],
+          "query": [
+            {
+              "key": "party",
+              "value": "Contract Amar",
+              "description": "REQUIRED — Deductee party — get the exact name from GET /api/v1/tds-summary."
+            },
+            {
+              "key": "tds_ledger",
+              "value": "Tds Payable on Job Work",
+              "description": "Narrow to one TDS ledger.",
+              "disabled": true
+            },
+            {
+              "key": "range_key",
+              "value": "current",
+              "description": "\"from:to\" or \"current\".",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Read one party's stored bill-wise TDS breakup.\n\nReads the stored bill-wise TDS breakup for ONE party (trigger it first via `POST /api/v1/tds/bills/refresh`). Params: `company_id` (REQUIRED), `party` (REQUIRED), `tds_ledger` (narrow to one ledger), `range_key` (`from:to` or `current`). Each row carries `bill_date`/`bill_ref`/`due_date` (Tally display strings), `opening`/`closing` (raw text + parsed `*_number`), and `overdue_days`. Terminal in Flask — nothing stored in Bizmitra."
+      },
+      "response": []
+    },
+    {
+      "name": "Push master",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \\\"company_id\\\": {{company_id}},\n    \"transaction_id\": \"master-ledger-test-001\",\n    \"event_type\": \"master_create\",\n    \"master\": {\n        \"name\": \"test Pvt Ltd\",\n        \"parent\": \"Sundry Debtors\",\n        \"currency\": \"₹\",\n        \"is_billwise\": true,\n        \"gstin\": \"24AAGxxxxxxxxZQ\",\n        \"gst_registration_type\": \"Regular\",\n        \"address\": [\n            \"1st Road\",\n            \"2nd Road\"\n        ],\n        \"state\": \"Rajasthan\",\n        \"country\": \"India\",\n        \"pincode\": \"444444\",\n        \"mobile\": \"722xxxxxxx\",\n        \"email\": \"billing@test.test\",\n        \"opening_balance\": 0,\n        \"applicable_from\": \"20250401\"\n    }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/masters/:type",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "masters",
+            ":type"
+          ],
+          "variable": [
+            {
+              "key": "type",
+              "value": "",
+              "description": "Path parameter — fill in before sending."
+            }
+          ]
+        },
+        "description": "Push a master (single or batch) into the customer’s Tally — the master type is in the URL.\n\nEnqueues a master push for `{type}`; the customer’s paired Connector imports it on its next poll. Returns immediately with a `job_id`. Idempotent on `transaction_id` (a duplicate echoes the original job with `duplicate:true`).\n\n`{type}` is one of the nine registry keys — `group`, `ledger`, `currency`, `unit`, `godown`, `stock_group`, `stock_category`, `stock_item`, `voucher_type` (hyphens accepted: `stock-item` ≡ `stock_item`). The type lives in the URL, so the master body NEVER repeats it.\n\nBody: `company_id` (one of your company `id`s, bound to a connector), `transaction_id` (your idempotency key), `event_type` (`master_create` or `master_alter`), and exactly ONE of `master` (a single object) or `masters` (a list — batch, ordered parents-first: currencies/units/groups/categories before ledgers/stock items). Every master needs `name`; all other fields are optional and type-specific.\n\nRules: `gst_rate` is a SINGLE percent (e.g. 18) — the connector splits CGST/SGST/IGST; never send separate heads. Without `guid` Tally upserts by `name`. Pair your record on the returned `tally_master_guid` (read `GET /api/v1/masters/{type}`) once `status` is `completed` — push one master per job when you need the GUID back (a batch returns only a LASTMID)."
+      },
+      "response": []
+    },
+    {
+      "name": "List master jobs",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/masters/:type?company_id={{company_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "masters",
+            ":type"
+          ],
+          "query": [
+            {
+              "key": "company_id",
+              "value": "{{company_id}}"
+            },
+            {
+              "key": "status",
+              "value": "completed",
+              "description": "pending | reserved | completed | failed | dead_letter.",
+              "disabled": true
+            },
+            {
+              "key": "since_id",
+              "value": "0",
+              "description": "Only rows after this id.",
+              "disabled": true
+            },
+            {
+              "key": "limit",
+              "value": "50",
+              "description": "Page size (max 200).",
+              "disabled": true
+            },
+            {
+              "key": "offset",
+              "value": "0",
+              "description": "Page offset.",
+              "disabled": true
+            }
+          ],
+          "variable": [
+            {
+              "key": "type",
+              "value": "",
+              "description": "Path parameter — fill in before sending."
+            }
+          ]
+        },
+        "description": "Read the outcome of your master pushes for one type (pair on tally_master_guid).\n\nLists your master-sync jobs for `{type}` and their outcome. Poll incrementally with `?since_id=<last id seen>`. Params (all optional): `company_id` (one of your company `id`s), `status` (`pending`/`reserved`/`completed`/`failed`/`dead_letter`), `since_id`, `limit` (≤200), `offset`.\n\nOnce a row is `completed`, **pair on `tally_master_guid`** — it is stable across renames and re-imports (the numeric `tally_master_id` is per-company; the name can change). For a batch job, `master_name` is null and `masters` lists each `{type,name}`. Use `GET /api/v1/masters/{type}/{job}` for one job’s full detail including the pushed payload."
+      },
+      "response": []
+    },
+    {
+      "name": "Get master job",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/masters/:type/:job",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "masters",
+            ":type",
+            ":job"
+          ],
+          "variable": [
+            {
+              "key": "type",
+              "value": "",
+              "description": "Path parameter — fill in before sending."
+            },
+            {
+              "key": "job",
+              "value": "",
+              "description": "Path parameter — fill in before sending."
+            }
+          ]
+        },
+        "description": "One master job with its full detail, including the payload you pushed.\n\nReturns the same record as the list item PLUS the `payload` (the master body you pushed). `{job}` is the `job_id` from the push/list response. Scoped to your developer account + type, so a job outside your scope simply returns not-found."
+      },
+      "response": []
+    },
+    {
+      "name": "Ping",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Bizmitra-Company",
+            "value": "{{company_id}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/ping",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "ping"
+          ]
+        },
+        "description": "Proof endpoint — exercises the full key + company auth stack and echoes your request context.\n\nUse this first to confirm your API key, secret and `X-Bizmitra-Company` header are wired up correctly. It does not touch Tally, so it returns instantly."
+      },
+      "response": []
+    },
+    {
+      "name": "Tally bridge (passthrough)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Bizmitra-Company",
+            "value": "{{company_id}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/tally/:resource",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "tally",
+            ":resource"
+          ],
+          "variable": [
+            {
+              "key": "resource",
+              "value": "",
+              "description": "Path parameter — fill in before sending."
+            }
+          ]
+        },
+        "description": "Passthrough to the customer’s paired Tally Connector via long-poll dispatch.\n\n**Under development — not available yet.** This live passthrough bridge is not wired to the developer's paired Connector at the moment, so calls currently return `504 connector_timeout`. Use the dedicated push endpoints (invoices/orders/etc.) and the pulled-vouchers read surface instead. When ready: forwards the request body to the paired Connector for the company in `X-Bizmitra-Company` and returns Tally's response; nothing is persisted in Bizmitra."
+      },
+      "response": []
+    },
+    {
+      "name": "List applications",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/applications",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "applications"
+          ]
+        },
+        "description": "List your registered applications.\n\nControl-plane (key-only, no company header). Returns the applications registered under your developer account."
+      },
+      "response": []
+    },
+    {
+      "name": "List companies",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/companies",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "companies"
+          ],
+          "query": [
+            {
+              "key": "customer_token",
+              "value": "bmc_…",
+              "description": "Filter to one customer's companies (their share_token). Omit for all.",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "List your developer companies and their connection state (filter by customer).\n\nPaginated. Each row includes pairing/connector/Tally binding state plus `customer_token` (the customer this company is grouped under, or null). Filter to ONE customer's companies with `customer_token=<share_token>` — a foreign/unknown token returns 404."
+      },
+      "response": []
+    },
+    {
+      "name": "List customers",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/customers",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "customers"
+          ]
+        },
+        "description": "List your customers (client groupings) + company counts.\n\nA customer is one of your clients — a grouping key that lets ONE pairing code authorize all of a client's companies (connector tenant isolation). It holds NO contact/PII. Returns the opaque, rotatable `share_token` (your handle for grouping companies), `reference` (your own tag), `status` and `company_count`. The internal id is never exposed."
+      },
+      "response": []
+    },
+    {
+      "name": "Create customer",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"reference\": \"ACME-RETAIL\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/customers",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "customers"
+          ]
+        },
+        "description": "Create a customer (client grouping). Returns its share_token.\n\nCreates a customer grouping under your account and returns the opaque, rotatable `share_token`. Use it as `customer_token` when creating/grouping companies, then mint ONE pairing code per customer (`Generate pairing code`). Optional `reference` = your own tag (unique per developer). No contact/PII is stored — a customer is only a grouping of companies."
+      },
+      "response": []
+    },
+    {
+      "name": "Rotate customer token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/customers/:token/rotate",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "customers",
+            ":token",
+            "rotate"
+          ],
+          "variable": [
+            {
+              "key": "token",
+              "value": "",
+              "description": "Path parameter — fill in before sending."
+            }
+          ]
+        },
+        "description": "Rotate a customer’s share_token (e.g. on suspected leak).\n\nIssues a new `share_token`; the old one stops working immediately. The customer's identity and ALL its machine grants are untouched (nothing re-pairs). `{token}` is the CURRENT share_token. A token that isn't yours → 404."
+      },
+      "response": []
+    },
+    {
+      "name": "Create company",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \\\"application_id\\\": {{application_id}},\n    \"name\": \"Tally Test Company\",\n    \"external_company_id\": \"Tally test company id- 200014\",\n    \"customer_token\": \"xxxx_xxxxxxxx\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/companies",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "companies"
+          ]
+        },
+        "description": "Register a developer company under an application (optionally grouped under a customer).\n\nCreates a logical company under one of your applications. Returns its `id` and `uuid`. Optionally pass `customer_token` (from `Create customer`) to group it under a customer (client): if that customer already has a paired machine, the company auto-flows to it (appears in the client's Connector with no re-pairing). A foreign/unknown `customer_token` returns 404."
+      },
+      "response": []
+    },
+    {
+      "name": "Add company to customer",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"customer_token\": \"bmc_…\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/companies/:id/customer",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "companies",
+            ":id",
+            "customer"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "",
+              "description": "Path parameter — fill in before sending."
+            }
+          ]
+        },
+        "description": "Group an existing company under a customer (auto-flows to its machine).\n\nMoves an existing company into one of your customers. If that customer already has a paired machine, the company is granted to it immediately — it appears in the client's Connector with NO re-pairing and NO new code. `{id}` = your company id. Body: `customer_token`. A foreign company or customer → 404."
+      },
+      "response": []
+    },
+    {
+      "name": "Remove company from customer",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/companies/:id/customer",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "companies",
+            ":id",
+            "customer"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "",
+              "description": "Path parameter — fill in before sending."
+            }
+          ]
+        },
+        "description": "Ungroup a company from its customer (revokes it from the machine).\n\nRemoves the company from its customer group. If the customer has a paired machine, the company is revoked from it and its sync stops immediately (no re-pairing). `{id}` = your company id."
+      },
+      "response": []
+    },
+    {
+      "name": "Generate pairing code",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"customer_token\": \"bmc_…\",\n    \"expires_in\": 900\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/connectors/pairing-code",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "connectors",
+            "pairing-code"
+          ]
+        },
+        "description": "Mint a CUSTOMER-scoped pairing code (authorizes all a client’s companies).\n\nMint ONE pairing code for a customer (client): it authorizes ALL of that customer's companies at once. Body: `customer_token` (REQUIRED — from `Create customer`), `expires_in` optional (default 900s). The client redeems it ONCE and their Connector is locked to exactly those companies — they can never see another client (tenant isolation). Add a company to the customer later and it auto-flows to the paired machine with no new code. The customer must have at least one company (422 otherwise). The plaintext `pairing_code` is returned only here, once."
+      },
+      "response": []
+    },
+    {
+      "name": "List pairing codes",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/connectors/pairing-codes",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "connectors",
+            "pairing-codes"
+          ]
+        },
+        "description": "List your pairing codes and their status.\n\nLists pairing codes for your account. `status` filter optional: active | used | expired | revoked. `limit`/`offset` optional. Plaintext codes are never re-exposed here — metadata only."
+      },
+      "response": []
+    },
+    {
+      "name": "Revoke pairing code",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/connectors/pairing-codes/:id/revoke",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "connectors",
+            "pairing-codes",
+            ":id",
+            "revoke"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "",
+              "description": "Path parameter — fill in before sending."
+            }
+          ]
+        },
+        "description": "Revoke an unused pairing code.\n\nRevokes an unused code by `{id}`. Returns 400 if it was already used. Regenerate = revoke the old one, then POST a new pairing code."
+      },
+      "response": []
+    },
+    {
+      "name": "Company connector health",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/companies/:id/health",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "companies",
+            ":id",
+            "health"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "",
+              "description": "Path parameter — fill in before sending."
+            }
+          ]
+        },
+        "description": "Check before you sync — is the connector online, is Tally running, is the right company loaded, right now.\n\nLive connector + Tally health for one company in ONE call, so your backend can decide whether a push will land BEFORE sending it (instead of firing blind and reading a `504 connector_timeout` after the fact). `{id}` = your company `id`; key-only auth (no `X-Bizmitra-Company`).\n\nReturns two 4-state machines:\n\n**`tally_status`** — the Tally desktop probe:\n- `running` — Tally is open on the paired machine.\n- `not_running` — the connector is online, but Tally is closed. *Show your user: \"Please open Tally.\"*\n- `reconnecting` — a transient link loss, recovering.\n- `unreachable` — connector offline / machine asleep / bridge unavailable. *Show your user: \"Connector is offline.\"*\n\n**`company_status`** — the company-binding probe:\n- `company_linked` — the correct company is loaded and bound. Safe to sync.\n- `no_company_loaded` — Tally is running but no company is open.\n- `company_unavailable` — the company is known but not currently reachable.\n- `company_not_linked` — the company isn't bound to this connector.\n\nAlways returns HTTP `200` with a usable state — an offline connector or an unreachable bridge degrades to `tally_status=unreachable` + `company_status=company_not_linked` rather than an error, because \"don't push yet\" IS the answer you need. Unmetered, so you can call it before every sync. `connector_paired` is the stored pairing fact; `connector_online`/`tally_running`/`company_linked` are the live probe. Preflight pattern: call this → if `tally_running` and `company_linked`, push; otherwise surface the state to your user and retry."
+      },
+      "response": []
+    },
+    {
+      "name": "Disconnect company",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/companies/:id/disconnect",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "companies",
+            ":id",
+            "disconnect"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "",
+              "description": "Path parameter — fill in before sending."
+            }
+          ]
+        },
+        "description": "Tear down a company’s connection (clears pairing/connector/Tally state).\n\nMirrors the portal’s Disconnect button — resets the company to `disconnected` and clears its pairing code, connector and Tally-binding snapshots. Call this when a user disconnects from the Connector app. Generate a new pairing code to reconnect."
+      },
+      "response": []
+    },
+    {
+      "name": "List connectors",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/connectors",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "connectors"
+          ]
+        },
+        "description": "List the paired Connector machines on your account.\n\nPairing is account-wide: you pair one Connector per machine (no per-company code) and can own many. Lists each paired machine with device/OS/connector version, online + Tally state, and linked-company count. `include_removed=1` to include removed machines. `online` is derived from heartbeat freshness; `state` is active | disabled | removed."
+      },
+      "response": []
+    },
+    {
+      "name": "Get connector",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/connectors/:machine",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "connectors",
+            ":machine"
+          ],
+          "variable": [
+            {
+              "key": "machine",
+              "value": "",
+              "description": "Path parameter — fill in before sending."
+            }
+          ]
+        },
+        "description": "One Connector machine with its linked companies.\n\nFull detail for one machine by `{machine}` (its `machine_uuid`), including each linked company's binding + sync health. `sync_health`: healthy | syncing | degraded | paused. `company_status`: company_linked | no_company_loaded | company_unavailable | company_not_linked. `tally_status`: running | not_running | reconnecting | unreachable. A machine that isn't yours returns 404."
+      },
+      "response": []
+    },
+    {
+      "name": "List connector companies",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/connectors/:machine/companies",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "connectors",
+            ":machine",
+            "companies"
+          ],
+          "variable": [
+            {
+              "key": "machine",
+              "value": "",
+              "description": "Path parameter — fill in before sending."
+            }
+          ]
+        },
+        "description": "Companies bound to one Connector machine.\n\nJust the linked companies for the given `{machine}` (same company shape as Get connector)."
+      },
+      "response": []
+    },
+    {
+      "name": "Connector sync history",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/connectors/:machine/jobs",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "connectors",
+            ":machine",
+            "jobs"
+          ],
+          "variable": [
+            {
+              "key": "machine",
+              "value": "",
+              "description": "Path parameter — fill in before sending."
+            }
+          ]
+        },
+        "description": "Sync-job history for one Connector machine.\n\nRecent sync jobs the machine ran. Filters (all optional): `status`, `company_id`, `limit` (≤200), `offset`."
+      },
+      "response": []
+    },
+    {
+      "name": "Rename connector",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"device_name\": \"Example PC\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/connectors/:machine",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "connectors",
+            ":machine"
+          ],
+          "variable": [
+            {
+              "key": "machine",
+              "value": "",
+              "description": "Path parameter — fill in before sending."
+            }
+          ]
+        },
+        "description": "Rename a Connector machine.\n\nSet a friendly `device_name` for the machine (`{machine}` = machine_uuid)."
+      },
+      "response": []
+    },
+    {
+      "name": "Disable connector",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/connectors/:machine/disable",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "connectors",
+            ":machine",
+            "disable"
+          ],
+          "variable": [
+            {
+              "key": "machine",
+              "value": "",
+              "description": "Path parameter — fill in before sending."
+            }
+          ]
+        },
+        "description": "Disable a Connector machine (stops it serving).\n\nSets the machine `state` to disabled. It stays paired but won't process jobs until re-enabled."
+      },
+      "response": []
+    },
+    {
+      "name": "Enable connector",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/connectors/:machine/enable",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "connectors",
+            ":machine",
+            "enable"
+          ],
+          "variable": [
+            {
+              "key": "machine",
+              "value": "",
+              "description": "Path parameter — fill in before sending."
+            }
+          ]
+        },
+        "description": "Re-enable a disabled Connector machine.\n\nSets the machine `state` back to active."
+      },
+      "response": []
+    },
+    {
+      "name": "Remove connector",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/connectors/:machine",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "connectors",
+            ":machine"
+          ],
+          "variable": [
+            {
+              "key": "machine",
+              "value": "",
+              "description": "Path parameter — fill in before sending."
+            }
+          ]
+        },
+        "description": "Remove / unpair a Connector machine.\n\nUnpairs the machine: rotates its token and detaches its company bindings. It must re-pair (new code) to reconnect. `state` becomes removed."
+      },
+      "response": []
+    },
+    {
+      "name": "List webhooks",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/webhooks",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "webhooks"
+          ]
+        },
+        "description": "List your webhook subscriptions and their health.\n\nA webhook subscribes a URL to connector/Tally state transitions — `connector.online` · `connector.offline` · `tally.started` · `tally.stopped` · `company.linked` · `company.unlinked` — so Bizmitra pushes an event to you instead of you polling. Lists your subscriptions with health (`consecutive_failures`, `last_success_at`, whether auto-disabled) and a masked `secret_hint`. The signing secret itself is shown only at create/rotate."
+      },
+      "response": []
+    },
+    {
+      "name": "Create webhook",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"url\": \"https://api.yourapp.com/hooks/bizmitra\",\n    \"events\": [\n        \"connector.offline\",\n        \"tally.stopped\"\n    ],\n    \"description\": \"Ops alerts\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/webhooks",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "webhooks"
+          ]
+        },
+        "description": "Subscribe a URL to connector/Tally events. Returns the signing secret ONCE.\n\nRegisters a webhook. Body: `url` (https), `events` (array — omit or `[]` for ALL of the six event types), `description` (optional), `all_applications` (optional bool — default is to scope to THIS key's application; set true to receive events from every app you own). The response includes the **`secret`** in full — the ONLY time it is returned. Store it: every delivery is signed `X-Bizmitra-Signature: t=<unix>,v1=<hmac-sha256 of \"{t}.{body}\">`, so you verify with this secret. Rotate or re-read via the other endpoints (thereafter only a masked `secret_hint` is shown)."
+      },
+      "response": []
+    },
+    {
+      "name": "Get webhook",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/webhooks/:id",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "webhooks",
+            ":id"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "",
+              "description": "Path parameter — fill in before sending."
+            }
+          ]
+        },
+        "description": "One webhook subscription.\n\nReturns one subscription (masked secret). A webhook that isn't yours returns 404."
+      },
+      "response": []
+    },
+    {
+      "name": "Update webhook",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"events\": [\n        \"connector.offline\",\n        \"connector.online\"\n    ],\n    \"is_active\": true\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/webhooks/:id",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "webhooks",
+            ":id"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "",
+              "description": "Path parameter — fill in before sending."
+            }
+          ]
+        },
+        "description": "Change a webhook’s url / events / description, or (de)activate it.\n\nPartial update: any of `url`, `events`, `description`, `is_active`. Setting `is_active=true` also clears an auto-disable + the failure streak, giving a fixed endpoint a clean retry."
+      },
+      "response": []
+    },
+    {
+      "name": "Delete webhook",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/webhooks/:id",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "webhooks",
+            ":id"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "",
+              "description": "Path parameter — fill in before sending."
+            }
+          ]
+        },
+        "description": "Delete a webhook subscription (and its delivery log).\n\nRemoves the subscription and its deliveries. Any queued deliveries stop."
+      },
+      "response": []
+    },
+    {
+      "name": "Rotate webhook secret",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/webhooks/:id/rotate-secret",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "webhooks",
+            ":id",
+            "rotate-secret"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "",
+              "description": "Path parameter — fill in before sending."
+            }
+          ]
+        },
+        "description": "Issue a new signing secret (returned once).\n\nReplaces the signing secret and returns the new one in full (the only time it is shown). Deliveries signed after this use the new secret — update your verifier promptly."
+      },
+      "response": []
+    },
+    {
+      "name": "Send test event",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/webhooks/:id/test",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "webhooks",
+            ":id",
+            "test"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "",
+              "description": "Path parameter — fill in before sending."
+            }
+          ]
+        },
+        "description": "Send a synthetic event through the real signed-delivery path.\n\nQueues a `connector.online` test event (payload carries `\"test\": true`) delivered exactly like a real one — signed, logged, retried — so you can verify your endpoint and signature check end to end. Watch the result under `Webhook deliveries`."
+      },
+      "response": []
+    },
+    {
+      "name": "Webhook deliveries",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/webhooks/:id/deliveries",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "webhooks",
+            ":id",
+            "deliveries"
+          ],
+          "variable": [
+            {
+              "key": "id",
+              "value": "",
+              "description": "Path parameter — fill in before sending."
+            }
+          ]
+        },
+        "description": "Delivery log for one webhook — status, attempts, last response.\n\nPaginated log of deliveries for a subscription: `status` (pending | delivered | failed), `attempts`, `response_status`, `error`, `next_attempt_at` and `delivered_at`. Use it to debug a failing endpoint. Failed deliveries retry with exponential backoff up to `max_attempts` before giving up."
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://bizmitra.io"
+    },
+    {
+      "key": "key_id",
+      "value": ""
+    },
+    {
+      "key": "secret",
+      "value": ""
+    },
+    {
+      "key": "company_id",
+      "value": ""
+    },
+    {
+      "key": "application_id",
+      "value": ""
+    }
+  ]
+}
