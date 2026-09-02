@@ -45,7 +45,7 @@ Illustrative response:
       "voucher_kind": "sales",
       "voucher_type": "Sales",
       "voucher_number": "INV-DEMO-001",
-      "status": "pending",
+      "status": "pulled",
       "last_synced_at": null
     }
   ]
