@@ -100,3 +100,9 @@ All examples currently target `/api/v1`. Additive changes may be introduced with
 ## License
 
 The sample code and documentation in this repository are licensed under the [MIT License](LICENSE). Use of the Bizmitra API and Connector App is governed separately by Bizmitra's applicable commercial terms and policies.
+
+## Acknowledgements
+
+The Bizmitra Tally Connector API and integration workflows were developed with contributions from:
+
+- [Vishal Bizmitra](https://github.com/vishalbizmitra) — API and Connector development
