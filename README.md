@@ -1,6 +1,12 @@
+> [!IMPORTANT]
+> This repository is currently in public preview. Some response examples and fields may change before the first stable release.
 # Bizmitra Tally API — Integration Examples
 
 Connect a SaaS, ERP, mobile application, or AI product to TallyPrime through the Bizmitra Tally API and the Bizmitra Connector App.
+
+[Learn about the Tally Connector](https://bizmitra.io/tally-connector) ·
+[Create a developer account](https://bizmitra.io/developer-portal/register) ·
+[Read the documentation](https://bizmitra.io/developers/tally-integration-api)
 
 > **Draft repository:** The documentation and example responses are being prepared for the first public release. Do not publish until every item in [the release checklist](docs/release-checklist.md) is complete.
 
@@ -106,3 +112,17 @@ The sample code and documentation in this repository are licensed under the [MIT
 The Bizmitra Tally Connector API and integration workflows were developed with contributions from:
 
 - [Vishal Bizmitra](https://github.com/vishalbizmitra) — API and Connector development
+
+
+## Get started
+
+Create a Bizmitra developer account to generate sandbox credentials, configure a company and test the API using the included Postman collection.
+
+- [Create a developer account](https://bizmitra.io/developer-portal/register)
+- [Bizmitra Tally Connector](https://bizmitra.io/tally-connector)
+- [Bizmitra website](https://bizmitra.io)
+
+## Support
+
+For integration questions, open a GitHub issue.  
+For production access or partnership enquiries, contact [Bizmitra](https://bizmitra.io/contact).
