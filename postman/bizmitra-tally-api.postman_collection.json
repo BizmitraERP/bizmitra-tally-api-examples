@@ -486,7 +486,7 @@
             }
           ]
         },
-        "description": "Poll the status of your pushed invoices/orders — completed, still pending, or failed with the reason.\n\nThe READ side of `Sync invoice` / `Sync sales order` (symmetric to `List master jobs`). Lists your voucher-sync jobs and where each one is: a stuck job shows `pending`/`reserved`, a broken one `failed`/`dead_letter` with the Tally error. Filters (all optional): `transaction_id` (exact — look up one push by your own reference), `job_type` (`invoice_sync` | `order_sync` — omit for both), `company_id` (one of your company `id`s), `status` (`pending` | `reserved` | `completed` | `failed` | `dead_letter`), `since_id`, `limit` (≤200), `offset`. Use `Get transaction status` for one job's pushed payload + raw Tally reply. Nothing is stored in Bizmitra; the job store lives behind the sync bridge."
+        "description": "Poll the status of your pushed invoices/orders — completed, still pending, or failed with the reason.\n\nFailed records include `error_code`, `error_label`, and a sanitized `error_message`. Raw Tally XML, stack traces, credentials, and internal service details are not exposed. Filters (all optional): `transaction_id`, `job_type`, `company_id`, `status`, `since_id`, `limit` (≤200), and `offset`. Use `Get transaction status` for one job's submitted payload."
       },
       "response": []
     },
@@ -527,7 +527,7 @@
             }
           ]
         },
-        "description": "One sync job in full — status, the payload you pushed, and the raw Tally response.\n\nReturns the same record as the list item PLUS `payload` (the voucher body you pushed) and `tally_response_xml` (Tally's raw reply — the place to read a rejection). `{job}` is the `job_id` from `Sync invoice`/`Sync sales order` or the list endpoint. Scoped to your developer account, so a job outside your scope returns not-found."
+        "description": "One sync job in full — status, submitted payload, and safe failure fields.\n\nOn failure, `error_code` is stable for program logic, `error_label` is display-friendly, and `error_message` contains the useful rejection text extracted from Tally's response. Raw XML and internal diagnostics are not exposed. `{job}` accepts either the public `job_id` or your own `transaction_id` and is scoped to your developer account."
       },
       "response": []
     },
