@@ -2102,6 +2102,79 @@
       "response": []
     },
     {
+      "name": "Get connector business hours",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/connectors/:machine/business-hours",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "connectors", ":machine", "business-hours"],
+          "variable": [
+            {
+              "key": "machine",
+              "value": "",
+              "description": "Connector machine_uuid."
+            }
+          ]
+        },
+        "description": "Read the remote business-hours overrides for one owned Connector machine. Null fields use the Connector's local configuration."
+      },
+      "response": []
+    },
+    {
+      "name": "Update connector business hours",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \u0022sync_mode\u0022: \u0022business_hours\u0022,\n    \u0022business_hours_start\u0022: \u002210:00\u0022,\n    \u0022business_hours_end\u0022: \u002217:00\u0022,\n    \u0022business_days\u0022: [0, 1, 2, 3, 4, 5],\n    \u0022business_timezone\u0022: \u0022Asia/Kolkata\u0022,\n    \u0022off_hours_full_sync_enabled\u0022: true\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/connectors/:machine/business-hours",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "connectors", ":machine", "business-hours"],
+          "variable": [
+            {
+              "key": "machine",
+              "value": "",
+              "description": "Connector machine_uuid."
+            }
+          ]
+        },
+        "description": "Partially update the business-hours schedule for one owned Connector. Incremental sync and imports continue during business hours; full sync and heavy reports are deferred. Times use HH:MM, days use Monday=0 through Sunday=6, and timezone is an IANA name. Changes normally arrive within 10 minutes without a restart."
+      },
+      "response": []
+    },
+    {
       "name": "Rename connector",
       "request": {
         "method": "PATCH",
