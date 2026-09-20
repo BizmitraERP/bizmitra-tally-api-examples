@@ -82,6 +82,7 @@ Each example here is the runnable version of a documented workflow. The example 
 |---|---|---|
 | [Pull vouchers](docs/pull-vouchers.md) | List vouchers received through the Connector, fetch a complete voucher, and acknowledge consumption | [Pull vouchers from Tally](https://docs.bizmitra.io/developer/examples/pull-vouchers) |
 | [Create an invoice](docs/push-invoice.md) | Submit an invoice, retain the transaction ID, and verify the final Tally result | [Create an invoice in Tally](https://docs.bizmitra.io/developer/examples/push-invoice) |
+| [Handle transaction failures](docs/transaction-failures.md) | Interpret safe Tally rejection fields and check aggregate report status | [Jobs and transactions](https://docs.bizmitra.io/developer/platform-concepts/jobs-and-transactions) |
 | [Quick start](docs/quick-start.md) | Account to first successful call | [Getting started](https://docs.bizmitra.io/developer/getting-started/) |
 | [Architecture](docs/architecture.md) | How your application, the API, the Connector and Tally fit together | [Platform concepts](https://docs.bizmitra.io/developer/platform-concepts/) |
 | Postman collection | Explore the broader API using your own developer credentials and company | [API reference](https://docs.bizmitra.io/developer/api/reference) |
