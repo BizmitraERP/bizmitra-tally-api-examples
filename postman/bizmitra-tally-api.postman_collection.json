@@ -213,7 +213,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n    \"event_type\": \"purchase_create\",\n    \"voucher\": {\n        \"voucher_type\": \"Purchase\",\n        \"voucher_number\": \"PUR/12\",\n        \"date\": \"2026-07-01\",\n        \"party_ledger\": \"Test Traders\",\n        \"inventory_entries\": [\n            {\n                \"stock_item\": \"iPhone\",\n                \"qty\": 2,\n                \"rate\": 5000,\n                \"amount\": 10000,\n                \"unit\": \"Nos\",\n                \"godown\": \"Main Location\",\n                \"accounting_allocations\": [\n                    {\n                        \"ledger_name\": \"Local Purchase\",\n                        \"amount\": 10000\n                    }\n                ],\n                \"batch_details\": [\n                    {\n                        \"batch_no\": \"B-001\",\n                        \"godown\": \"Main Location\",\n                        \"qty\": 2,\n                        \"amount\": 10000\n                    }\n                ]\n            }\n        ],\n        \"ledger_entries\": [\n            {\n                \"ledger_name\": \"Test Traders\",\n                \"amount\": 11800,\n                \"is_party\": true\n            },\n            {\n                \"ledger_name\": \"CGST\",\n                \"amount\": 900,\n                \"is_tax\": true\n            },\n            {\n                \"ledger_name\": \"SGST\",\n                \"amount\": 900,\n                \"is_tax\": true\n            }\n        ]\n    }\n}",
+          "raw": "{\n    \"event_type\": \"purchase_create\",\n    \"voucher\": {\n        \"voucher_type\": \"Purchase\",\n        \"voucher_number\": \"PUR/12\",\n        \"date\": \"2026-07-01\",\n        \"party_ledger\": \"Test Traders\",\n        \"gst\": {\n            \"registration_type\": \"Regular\",\n            \"place_of_supply\": \"Gujarat\",\n            \"state\": \"Gujarat\",\n            \"party_gstin\": \"24AAxxxxxx1ZQ\"\n        },\n        \"inventory_entries\": [\n            {\n                \"stock_item\": \"iPhone\",\n                \"qty\": 2,\n                \"rate\": 5000,\n                \"amount\": 10000,\n                \"unit\": \"Nos\",\n                \"godown\": \"Main Location\",\n                \"accounting_allocations\": [\n                    {\n                        \"ledger_name\": \"Local Purchase\",\n                        \"amount\": 10000\n                    }\n                ],\n                \"batch_details\": [\n                    {\n                        \"batch_no\": \"B-001\",\n                        \"godown\": \"Main Location\",\n                        \"qty\": 2,\n                        \"amount\": 10000\n                    }\n                ]\n            }\n        ],\n        \"ledger_entries\": [\n            {\n                \"ledger_name\": \"Test Traders\",\n                \"amount\": 11800,\n                \"is_party\": true\n            },\n            {\n                \"ledger_name\": \"CGST\",\n                \"amount\": 900,\n                \"is_tax\": true\n            },\n            {\n                \"ledger_name\": \"SGST\",\n                \"amount\": 900,\n                \"is_tax\": true\n            }\n        ]\n    }\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -231,7 +231,7 @@
             "purchases"
           ]
         },
-        "description": "Push a purchase voucher (invoice-shaped) to Tally.\n\nTrading voucher — same invoice-shaped body as `Sync invoice`, sent as POSITIVE magnitudes; the endpoint applies the purchase direction (party credited, items/taxes debited). Point the item's `accounting_allocations` at your PURCHASE/expense ledger (e.g. \"Local Purchase\"). Body under `voucher` (or `invoice`). `event_type` defaults to `purchase_create`. Poll status with `job_type=purchase_sync`."
+        "description": "Push a purchase voucher (invoice-shaped) to Tally.\n\nTrading voucher — same invoice-shaped body as `Sync invoice`, sent as POSITIVE magnitudes; the endpoint applies the purchase direction (party credited, items/taxes debited). Point the item's `accounting_allocations` at your PURCHASE/expense ledger (e.g. \"Local Purchase\"). Body under `voucher` (or `invoice`). `event_type` defaults to `purchase_create`. Poll status with `job_type=purchase_sync`.\n\nGST: the nested `gst` block is accepted here exactly as on `Sync invoice` — it maps to the voucher's GSTREGISTRATIONTYPE / PLACEOFSUPPLY / STATENAME / PARTYGSTIN. On a purchase these carry the SUPPLIER's registration type, state and GSTIN. Send them; they stamp the voucher with the supplier's identity and place of supply, which is what the purchase register and GST returns read. Omit them and the voucher falls back to whatever the party ledger master holds.\n\nThis block does NOT decide input-credit eligibility. Whether ITC is claimed is determined by the ledgers you post to — the purchase/expense ledger in `accounting_allocations` and the tax ledgers in `ledger_entries`. An ITC-ineligible purchase is expressed by posting to a ledger configured that way (or by loading the tax into the expense ledger), not by dropping `gst`. Item-level `hsn` / `taxability` / `gst_rates[]` are accepted too, as on `Sync invoice`."
       },
       "response": []
     },
@@ -1388,6 +1388,61 @@
           ]
         },
         "description": "One master job with its full detail, including the payload you pushed.\n\nReturns the same record as the list item PLUS the `payload` (the master body you pushed). `{job}` is the `job_id` from the push/list response. Scoped to your developer account + type, so a job outside your scope simply returns not-found."
+      },
+      "response": []
+    },
+    {
+      "name": "List pulled masters",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/pulled-masters/:type?company_id={{company_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "pulled-masters",
+            ":type"
+          ],
+          "query": [
+            {
+              "key": "company_id",
+              "value": "{{company_id}}"
+            },
+            {
+              "key": "limit",
+              "value": "50",
+              "description": "Page size (max 200).",
+              "disabled": true
+            },
+            {
+              "key": "offset",
+              "value": "0",
+              "description": "Page offset.",
+              "disabled": true
+            }
+          ],
+          "variable": [
+            {
+              "key": "type",
+              "value": "voucher_type",
+              "description": "Path parameter — one of group, ledger, currency, unit, godown, stock_group, stock_category, stock_item, voucher_type. Hyphens are accepted (stock-item)."
+            }
+          ]
+        },
+        "description": "Read the masters that exist in the customer's Tally company (Tally -> you).\n\nThe mirror of `List master jobs`: that one reports YOUR pushes, this one reports what the Connector has read back OUT of Tally. `company_id` is required and is one of your company `id`s. Requires the `pull.master` capability on your key, and the masters pull enabled for that company.\n\nEach row carries a `payload` with the master's fields:\n\n```\n{\n  \"master_type\": \"voucher_type\",\n  \"master_name\": \"Sales Bizmitra\",\n  \"tally_master_guid\": \"…\",\n  \"payload\": {\n    \"kind\": \"master\",\n    \"master_type\": \"voucher_type\",\n    \"name\": \"Sales Bizmitra\",\n    \"fields\": { \"parent\": \"Sales\", \"reserved_name\": \"Sales\", \"numbering_method\": \"Manual\", \"is_active\": \"Yes\", \"affects_stock\": \"No\" },\n    \"tally\": { \"guid\": \"…\", \"master_id\": \"…\", \"alter_id\": \"914\" }\n  }\n}\n```\n\nUseful for verifying customer setup instead of trusting recall — e.g. `fields.numbering_method` confirms a posting voucher type is on Manual numbering. Values are Tally's own strings passed through unmodified, so compare case-insensitively. `fields.reserved_name` identifies which built-in type a renamed or custom type derives from (Tally keeps it through a rename), and `tally.alter_id` bumps whenever the type is altered, so you can flag \"changed since setup\".\n\nPair on `tally_master_guid`, as with pushes."
       },
       "response": []
     },

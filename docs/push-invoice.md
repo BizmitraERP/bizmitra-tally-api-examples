@@ -66,6 +66,12 @@ Example body:
 
 Ledger, item, godown, unit, voucher-type, and tax names must match the target Tally company or be handled according to the API's supported master-creation workflow.
 
+### The same body shape covers the other trading vouchers
+
+`POST /api/v1/purchases`, `/credit-notes` and `/debit-notes` take this identical body — including the `gst` block — under `voucher` instead of `invoice`. They differ only in accounting direction, which the endpoint applies for you: send positive magnitudes and do not encode signs yourself.
+
+On a purchase, the `gst` block carries the **supplier's** registration type, state and GSTIN. It is party and place-of-supply context only; it does not decide input-credit eligibility. Whether ITC is claimed follows from the ledgers you post to — the purchase or expense ledger in each item's `accounting_allocations`, and the tax ledgers in `ledger_entries`. An ITC-ineligible purchase is expressed by posting to a ledger configured that way, not by omitting `gst`.
+
 ## 2. Retain the accepted transaction
 
 Illustrative accepted response:
