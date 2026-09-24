@@ -6,6 +6,7 @@ All notable changes to this repository will be documented here.
 
 ### Added
 
+- `List pulled masters` (`GET /api/v1/pulled-masters/{type}`) in the Postman collection — read the masters that exist in the customer's Tally company, including each voucher type's `numbering_method`.
 - Company-scoped pull statistics, including per-voucher-type counts and report freshness.
 - Safe failed-transaction fields: `error_code`, `error_label`, and sanitized `error_message`.
 - Transaction lookup by either the public job ID or the caller's transaction ID.
@@ -17,6 +18,10 @@ All notable changes to this repository will be documented here.
 - Push-invoice and final-status workflow.
 - Public Postman collection draft.
 - API lifecycle and release-checklist documents.
+
+### Fixed
+
+- The `Sync purchase` example was missing the `gst` block, which made it look as though purchase vouchers took a different body from invoices. They do not — all trading vouchers share one shape. The block is now shown on the purchase example and documented on the push-invoice walkthrough.
 
 ### Security and behavior
 
