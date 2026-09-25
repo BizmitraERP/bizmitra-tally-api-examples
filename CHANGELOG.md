@@ -21,6 +21,7 @@ All notable changes to this repository will be documented here.
 
 ### Fixed
 
+- Voucher-type numbering was described as a Manual-or-not check. `Automatic (Manual Override)` — Tally's default on a new voucher type — also keeps the voucher number you post, so that check warned on correctly configured types. `List pulled masters` now documents all five of Tally's numbering methods, which of them keep your number, and the `numbering_sub_method` / `numbering_series` fields.
 - The `Sync purchase` example was missing the `gst` block, which made it look as though purchase vouchers took a different body from invoices. They do not — all trading vouchers share one shape. The block is now shown on the purchase example and documented on the push-invoice walkthrough.
 
 ### Security and behavior
