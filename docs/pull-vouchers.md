@@ -78,6 +78,33 @@ Illustrative response excerpt:
     "invoice_json": {
       "date": "2026-06-01",
       "party_ledger": "Example Customer",
+      "buyer": {
+        "name": "Example Customer",
+        "mailing_name": "Example Customer Pvt Ltd",
+        "address": ["1st Road", "2nd Road"],
+        "pincode": "444444",
+        "country": "India"
+      },
+      "consignee": {
+        "name": "Example Warehouse",
+        "address": [],
+        "pincode": "382110",
+        "state": "Gujarat",
+        "country": "India",
+        "gstin": "24BBBBB0000B1Z5"
+      },
+      "dispatch": {
+        "doc_no": "DC-9",
+        "date": "2026-06-01",
+        "through": "Blue Dart",
+        "destination": "Ahmedabad",
+        "place_of_receipt": "Gandhinagar",
+        "vessel_flight_no": null,
+        "order_reference": null,
+        "payment_terms": "30 Days",
+        "delivery_note_no": "DN-3",
+        "delivery_note_date": "2026-05-31"
+      },
       "inventory_entries": [
         {
           "stock_item": "Example Item",
@@ -96,6 +123,16 @@ Illustrative response excerpt:
   }
 }
 ```
+
+### Bill-to, ship-to and dispatch
+
+`buyer`, `consignee` and `dispatch` use the same field names the push side accepts, so a voucher read out of Tally can be written back without remapping — see [Create an invoice](push-invoice.md) for what each field means.
+
+Each block is `null`, not an empty object, when the voucher carries no such data. That is the common case, and always true for a journal or a payment, so test the block before reading fields out of it. `buyer` is usually present even so: its `name` falls back to the party ledger and `address` comes back as an empty array.
+
+`consignee.state` is the delivery state and is independent of the buyer's state in `gst`; on a "bill to one state, deliver to another" sale the two differ.
+
+`consignee.address` comes back as an empty array — Tally holds consignee street lines in the party ledger's address book rather than on the voucher, so there is nothing to return. Read the ship-to street address from the ledger master.
 
 ## 3. Process idempotently
 
