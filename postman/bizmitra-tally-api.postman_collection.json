@@ -259,7 +259,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n    \"event_type\": \"receipt_create\",\n    \"voucher\": {\n        \"voucher_type\": \"Receipt\",\n        \"voucher_number\": \"3\",\n        \"date\": \"2026-04-01\",\n        \"party_ledger\": \"Mkr\",\n        \"ledger_entries\": [\n            {\n                \"ledger_name\": \"ABC Bank\",\n                \"amount\": 36000,\n                \"is_debit\": true\n            },\n            {\n                \"ledger_name\": \"Mkr\",\n                \"amount\": 36000,\n                \"is_debit\": false,\n                \"is_party\": true\n            }\n        ]\n    }\n}",
+          "raw": "{\n    \"event_type\": \"receipt_create\",\n    \"voucher\": {\n        \"voucher_type\": \"Receipt\",\n        \"voucher_number\": \"1\",\n        \"date\": \"2026-04-01\",\n        \"party_ledger\": \"Acme Pvt Ltd\",\n        \"narration\": \"Part payment, two invoices\",\n        \"ledger_entries\": [\n            {\n                \"ledger_name\": \"Cash\",\n                \"amount\": 10000,\n                \"is_debit\": true\n            },\n            {\n                \"ledger_name\": \"Acme Pvt Ltd\",\n                \"amount\": 10000,\n                \"is_debit\": false,\n                \"is_party\": true,\n                \"bill_allocations\": [\n                    {\n                        \"name\": \"Bm/26-27/1\",\n                        \"bill_type\": \"Agst Ref\",\n                        \"amount\": 5000\n                    },\n                    {\n                        \"name\": \"Bm/26-27/2\",\n                        \"bill_type\": \"Agst Ref\",\n                        \"amount\": 5000\n                    }\n                ]\n            }\n        ]\n    }\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -277,7 +277,7 @@
             "receipts"
           ]
         },
-        "description": "Push a receipt voucher (ledger_entries + is_debit) to Tally.\n\nAccounting voucher — no inventory header. The body is just `ledger_entries[]`, each line carrying its own direction via `is_debit` (bank/cash debited, party credited). Mark the party/bank line `is_party`. Body under `voucher` (or `invoice`). `event_type` defaults to `receipt_create`. Poll status with `job_type=receipt_sync`."
+        "description": "Push a receipt voucher (ledger_entries + is_debit, optional bill-wise allocations) to Tally.\n\nAccounting voucher — no inventory header. The body is just `ledger_entries[]`, each line carrying its own direction via `is_debit` (bank/cash debited, party credited). Mark the party/bank line `is_party`.\n\n**Settling invoices.** Put `bill_allocations[]` on the **party** line to say which invoices the money clears — one receipt can clear several. Each takes `name` (the bill), `bill_type` (`Agst Ref` settling an existing bill, `New Ref`, `Advance`, or `On Account`; defaults to `Agst Ref` when a name is given) and `amount` (a magnitude — the sign comes from the ledger line, and it may be omitted when the line settles exactly one bill in full).\n\nOmit the block and nothing errors: the ledger balance is right, the money sits unallocated, and Tally's Bills Outstanding still shows the invoices open. An `Agst Ref` name must match a bill genuinely outstanding for that party, or Tally parks the whole voucher as an import exception.\n\nThere is no credit-period field: Tally ignores `BILLCREDITPERIOD` on import and exports it blank.\n\nBody under `voucher` (or `invoice`). `event_type` defaults to `receipt_create`. Poll status with `job_type=receipt_sync`."
       },
       "response": []
     },
@@ -323,7 +323,7 @@
             "payments"
           ]
         },
-        "description": "Push a payment voucher (ledger_entries + is_debit, optional cheque) to Tally.\n\nAccounting voucher — `ledger_entries[]` with per-line `is_debit` (expense/party debited, bank/cash credited). A bank line may carry `bank_allocations[]` for cheque / transfer details (`transaction_type` is REQUIRED for the allocation to be emitted). Body under `voucher` (or `invoice`). `event_type` defaults to `payment_create`. Poll status with `job_type=payment_sync`."
+        "description": "Push a payment voucher (ledger_entries + is_debit, optional cheque) to Tally.\n\nAccounting voucher — `ledger_entries[]` with per-line `is_debit` (expense/party debited, bank/cash credited). A bank line may carry `bank_allocations[]` for cheque / transfer details (`transaction_type` is REQUIRED for the allocation to be emitted).\n\nWhen the payment settles supplier bills, add `bill_allocations[]` to the supplier line — same shape as on `Sync receipt`. A line may carry both lists: `bank_allocations` says how the money moved, `bill_allocations` says which bills it cleared.\n\nBody under `voucher` (or `invoice`). `event_type` defaults to `payment_create`. Poll status with `job_type=payment_sync`."
       },
       "response": []
     },
