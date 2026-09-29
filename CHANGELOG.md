@@ -6,6 +6,7 @@ All notable changes to this repository will be documented here.
 
 ### Added
 
+- **Bill-wise allocations on receipts and payments.** `ledger_entries[].bill_allocations` names the invoices a receipt or payment settles, so Tally's Bills Outstanding moves rather than only the ledger balance. One line can clear several bills. Covered by a new [Settle invoices with a receipt](docs/push-receipt.md) walkthrough, an updated `Sync receipt` request in the Postman collection, and the pull-side field on every voucher kind.
 - `List pulled masters` (`GET /api/v1/pulled-masters/{type}`) in the Postman collection — read the masters that exist in the customer's Tally company, including each voucher type's `numbering_method`.
 - Company-scoped pull statistics, including per-voucher-type counts and report freshness.
 - Safe failed-transaction fields: `error_code`, `error_label`, and sanitized `error_message`.

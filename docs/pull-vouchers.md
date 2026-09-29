@@ -134,6 +134,28 @@ Each block is `null`, not an empty object, when the voucher carries no such data
 
 `consignee.address` comes back as an empty array — Tally holds consignee street lines in the party ledger's address book rather than on the voucher, so there is nothing to return. Read the ship-to street address from the ledger master.
 
+### Which bills a voucher opened or settled
+
+Ledger entries carry `bill_allocations`, the bill-wise references Tally keeps against the party. This is what lets you reconstruct who owes what: an invoice reports the bill it opened, a receipt or payment reports the bills it cleared.
+
+```json
+"ledger_entries": [
+  {
+    "ledger_name": "Acme Pvt Ltd", "amount": 10000, "is_debit": false, "is_party": true,
+    "bill_allocations": [
+      { "name": "Bm/26-27/1", "bill_type": "Agst Ref", "amount": 5000 },
+      { "name": "Bm/26-27/2", "bill_type": "Agst Ref", "amount": 5000 }
+    ]
+  }
+]
+```
+
+`bill_type` is `New Ref` when the voucher opened the bill and `Agst Ref` when it settled one, with `Advance` and `On Account` covering the remaining two cases. One line can settle several bills, which is why it is a list.
+
+The `amount` carries Tally's sign — the same side as the ledger line it sits on, so positive on a receipt's credited party line and negative on a sales invoice's debited one. Take the absolute value when summing settlements. The push side ignores the sign and re-derives it from the line, so a pulled voucher still pushes back unchanged.
+
+A line with no bill-wise data returns `[]`, never a list of nulls. There is no credit-period or due-date field: Tally exports the tag blank even for a bill that has one.
+
 ## 3. Process idempotently
 
 Use `transaction_id` as the external correlation key in your application. If the same voucher appears again, update or ignore the existing record according to its latest Tally identifiers rather than creating a duplicate.

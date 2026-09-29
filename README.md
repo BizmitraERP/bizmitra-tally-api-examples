@@ -61,7 +61,7 @@ Use a dedicated Tally test company until your integration has been validated —
 3. Set the collection variables `key_id`, `secret`, and `company_id` with your own test values.
 4. Send **Ping** to confirm authentication.
 5. Send **Company connector health** to confirm that the Connector App and Tally are available.
-6. Follow [Pull vouchers from Tally](docs/pull-vouchers.md) or [Create an invoice in Tally](docs/push-invoice.md).
+6. Follow [Pull vouchers from Tally](docs/pull-vouchers.md), [Create an invoice in Tally](docs/push-invoice.md), or [Settle invoices with a receipt](docs/push-receipt.md).
 
 The same walkthrough with full explanations: [Postman collection](https://docs.bizmitra.io/developer/examples/postman) and [Your first request](https://docs.bizmitra.io/developer/getting-started/first-request).
 
@@ -82,6 +82,7 @@ Each example here is the runnable version of a documented workflow. The example 
 |---|---|---|
 | [Pull vouchers](docs/pull-vouchers.md) | List vouchers received through the Connector, fetch a complete voucher, and acknowledge consumption | [Pull vouchers from Tally](https://docs.bizmitra.io/developer/examples/pull-vouchers) |
 | [Create an invoice](docs/push-invoice.md) | Submit an invoice, retain the transaction ID, and verify the final Tally result | [Create an invoice in Tally](https://docs.bizmitra.io/developer/examples/push-invoice) |
+| [Settle invoices with a receipt](docs/push-receipt.md) | Record money received against the specific bills it pays, so Bills Outstanding moves | [Settle invoices with a receipt](https://docs.bizmitra.io/developer/examples/push-receipt) |
 | [Handle transaction failures](docs/transaction-failures.md) | Interpret safe Tally rejection fields and check aggregate report status | [Jobs and transactions](https://docs.bizmitra.io/developer/platform-concepts/jobs-and-transactions) |
 | [Manage business hours](docs/connector-business-hours.md) | Remotely defer heavy sync while accounts staff use Tally | [Connectors](https://docs.bizmitra.io/developer/platform-concepts/connectors#remote-business-hours) |
 | [Quick start](docs/quick-start.md) | Account to first successful call | [Getting started](https://docs.bizmitra.io/developer/getting-started/) |
