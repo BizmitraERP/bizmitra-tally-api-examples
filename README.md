@@ -20,6 +20,7 @@ and [Authentication](https://docs.bizmitra.io/developer/api/authentication).
 Your application communicates with the Bizmitra Tally API over HTTPS. The Bizmitra Connector App runs on a Windows computer that can access TallyPrime and carries authorized work between the API and Tally.
 
 - Send sales invoices and other supported vouchers to TallyPrime — [Voucher kinds and types](https://docs.bizmitra.io/developer/tally/voucher-kinds)
+- Give an AI agent tools over a customer's books, over MCP — [`mcp-server/`](mcp-server/)
 - Read vouchers and reports made available through the Connector — [Data model](https://docs.bizmitra.io/developer/platform-concepts/data-model)
 - Monitor Connector, Tally, and company connectivity — [Company health](https://docs.bizmitra.io/developer/tally/company-health)
 - Provision applications, customers, companies, and pairing codes through API endpoints — [Platform concepts](https://docs.bizmitra.io/developer/platform-concepts/)
@@ -83,6 +84,7 @@ Each example here is the runnable version of a documented workflow. The example 
 | [Pull vouchers](docs/pull-vouchers.md) | List vouchers received through the Connector, fetch a complete voucher, and acknowledge consumption | [Pull vouchers from Tally](https://docs.bizmitra.io/developer/examples/pull-vouchers) |
 | [Create an invoice](docs/push-invoice.md) | Submit an invoice, retain the transaction ID, and verify the final Tally result | [Create an invoice in Tally](https://docs.bizmitra.io/developer/examples/push-invoice) |
 | [Settle invoices with a receipt](docs/push-receipt.md) | Record money received against the specific bills it pays, so Bills Outstanding moves | [Settle invoices with a receipt](https://docs.bizmitra.io/developer/examples/push-receipt) |
+| [MCP server for Tally](mcp-server/) | Expose a customer's Tally company to an AI agent as MCP tools — runnable, with a smoke test | [Build an MCP server for Tally](https://docs.bizmitra.io/developer/examples/mcp-server) |
 | [Handle transaction failures](docs/transaction-failures.md) | Interpret safe Tally rejection fields and check aggregate report status | [Jobs and transactions](https://docs.bizmitra.io/developer/platform-concepts/jobs-and-transactions) |
 | [Manage business hours](docs/connector-business-hours.md) | Remotely defer heavy sync while accounts staff use Tally | [Connectors](https://docs.bizmitra.io/developer/platform-concepts/connectors#remote-business-hours) |
 | [Quick start](docs/quick-start.md) | Account to first successful call | [Getting started](https://docs.bizmitra.io/developer/getting-started/) |
