@@ -1,0 +1,19 @@
+{
+  "name": "bizmitra-tally-mcp-server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Example MCP server exposing a customer's TallyPrime company to AI agents through the Bizmitra Tally API",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "smoke": "node smoke.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "^2.3.1",
+    "zod": "^4.1.13"
+  }
+}
