@@ -1,14 +1,30 @@
 > [!IMPORTANT]
 > This repository is currently in public preview. Some response examples and fields may change before the first stable release.
-# Bizmitra Tally API — Integration Examples
 
-Connect a SaaS, ERP, mobile application, or AI product to TallyPrime through the Bizmitra Tally API and the Bizmitra Connector App.
+# Bizmitra Tally API examples
 
-[Documentation](https://docs.bizmitra.io/developer/) ·
-[Create a developer account](https://bizmitra.io/developer-portal/register) ·
-[Learn about the Tally Connector](https://bizmitra.io/tally-connector)
+Examples for connecting SaaS products, AI assistants and MCP servers to TallyPrime through the Bizmitra REST API and Connector App.
 
-This repository holds **runnable examples**. The reference documentation lives at
+- [Build an MCP server for TallyPrime](https://docs.bizmitra.io/developer/examples/mcp-server)
+- [Developer documentation](https://docs.bizmitra.io/developer/)
+- [Bizmitra Tally Connector](https://bizmitra.io/tally-connector)
+
+## MCP server for AI agents
+
+**[`mcp-server/`](mcp-server/)** is a runnable Model Context Protocol server that exposes one customer's TallyPrime company to an AI agent — five read tools, plus an invoice-write tool that is registered only when you enable it.
+
+```bash
+cd mcp-server && npm install
+cp .env.example .env     # key_id, secret, company_id
+npm run smoke            # real MCP handshake, no API calls
+npm start                # serve over stdio
+```
+
+TallyPrime does not provide a REST API — it exposes a LAN-bound XML/TDL gateway. The Bizmitra REST API is the REST/JSON layer the MCP server calls, and the Bizmitra Connector App bridges it to Tally on the customer's own machine, so Tally never needs a public endpoint. Walkthrough: [Build an MCP server for TallyPrime](https://docs.bizmitra.io/developer/examples/mcp-server).
+
+## REST API examples
+
+The rest of this repository holds **runnable REST API examples**. The reference documentation lives at
 **[docs.bizmitra.io](https://docs.bizmitra.io/developer/)** — begin with
 [Your first request](https://docs.bizmitra.io/developer/getting-started/first-request)
 and [Authentication](https://docs.bizmitra.io/developer/api/authentication).
