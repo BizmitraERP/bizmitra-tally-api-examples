@@ -699,7 +699,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n    \"company_id\": xx,\n    \"transaction_ids\": [\n        \"SLS-2026-36\",\n        \"SLS-2026-37\"\n    ]\n}",
+          "raw": "{\n    \"company_id\": {{company_id}},\n    \"transaction_ids\": [\n        \"SLS-2026-36\",\n        \"SLS-2026-37\"\n    ]\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -972,9 +972,9 @@
       "response": []
     },
     {
-      "name": "Refresh Profit & Loss",
+      "name": "Read Balance Sheet",
       "request": {
-        "method": "POST",
+        "method": "GET",
         "header": [
           {
             "key": "Authorization",
@@ -993,28 +993,71 @@
             "value": "application/json"
           }
         ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n    \"company_id\": xx\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
         "url": {
-          "raw": "{{base_url}}/api/v1/profit-loss/refresh",
+          "raw": "{{base_url}}/api/v1/balance-sheet",
           "host": [
             "{{base_url}}"
           ],
           "path": [
             "api",
             "v1",
-            "profit-loss",
-            "refresh"
+            "balance-sheet"
+          ],
+          "query": [
+            {
+              "key": "range_key",
+              "value": "20260401:20261017",
+              "description": "Which stored pull to read: `from:to` for a single window, `m:from:to` for a month-wise pull. Omit for the most recent.",
+              "disabled": true
+            }
           ]
         },
-        "description": "Enqueue a Profit & Loss A/c pull; read it back after the connector polls.\n\nEnqueues a Profit & Loss pull for one company; the paired Connector runs it on its next poll, then read via `GET /api/v1/profit-loss`. Async — returns a `job_id`. Body: `company_id` (REQUIRED), `transaction_id` (optional idempotency key). NB: the report IGNORES the date window — it always returns the FULL company period; single-month P&L via export is not possible. Needs the `report.financials` capability."
+        "description": "Balance Sheet for Tally's current period, every head opened down to its ledgers.\n\nPulled from Tally automatically by the Connector for a company whose application has `report.financial_statements` enabled — there is no request step, just read. Detailed, like Tally's Alt+F1 view: every row has `name`, `row_type` (`group` | `ledger`) and `parent_group`, so Sundry Debtors is followed by each debtor and their balance, and sub-groups are opened the same way. One signed `amount` per row (Dr negative). Tally does not export its \"Difference in opening balances\" line, so totals differ by that amount when a company has one. Send the company as `X-Bizmitra-Company` (set from `{{company_id}}`) or as `company_reference`. The response's `freshness` block says how current the stored copy is (`data_status`, `data_as_of`)."
+      },
+      "response": []
+    },
+    {
+      "name": "Read Trial Balance",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Bizmitra-Company",
+            "value": "{{company_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/trial-balance",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "trial-balance"
+          ],
+          "query": [
+            {
+              "key": "range_key",
+              "value": "20260401:20261017",
+              "description": "Which stored pull to read: `from:to` for a single window, `m:from:to` for a month-wise pull. Omit for the most recent.",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Trial Balance (closing Dr / Cr) for Tally's current period, every group opened down to its ledgers.\n\nPulled from Tally automatically by the Connector for a company whose application has `report.financial_statements` enabled — there is no request step, just read. Detailed, like Tally's Alt+F1 view: every row has `name`, `row_type` (`group` | `ledger`) and `parent_group`, so Sundry Debtors is followed by each debtor and their balance, and sub-groups are opened the same way. Rows carry `closing_debit` and `closing_credit` (+ `*_number`). Send the company as `X-Bizmitra-Company` (set from `{{company_id}}`) or as `company_reference`. The response's `freshness` block says how current the stored copy is (`data_status`, `data_as_of`)."
       },
       "response": []
     },
@@ -1041,25 +1084,407 @@
           }
         ],
         "url": {
-          "raw": "{{base_url}}/api/v1/profit-loss",
+          "raw": "{{base_url}}/api/v1/profit-loss-statement",
           "host": [
             "{{base_url}}"
           ],
           "path": [
             "api",
             "v1",
-            "profit-loss"
+            "profit-loss-statement"
+          ],
+          "query": [
+            {
+              "key": "range_key",
+              "value": "m:20260401:20260930",
+              "description": "Which stored pull to read: `from:to` for a single window, `m:from:to` for a month-wise pull. Omit for the most recent.",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Profit & Loss for Tally's current period, every income and expense group opened down to its ledgers.\n\nPulled from Tally automatically by the Connector for a company whose application has `report.financial_statements` enabled — there is no request step, just read. Detailed, like Tally's Alt+F1 view: every row has `name`, `row_type` (`group` | `ledger`) and `parent_group`, so Sundry Debtors is followed by each debtor and their balance, and sub-groups are opened the same way. One signed `amount` per row. This is the only Profit & Loss endpoint. Send the company as `X-Bizmitra-Company` (set from `{{company_id}}`) or as `company_reference`. The response's `freshness` block says how current the stored copy is (`data_status`, `data_as_of`)."
+      },
+      "response": []
+    },
+    {
+      "name": "Read ledger (one ledger)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Bizmitra-Company",
+            "value": "{{company_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/ledger?ledger_name=ABC Traders",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "ledger"
+          ],
+          "query": [
+            {
+              "key": "ledger_name",
+              "value": "ABC Traders",
+              "description": "REQUIRED — The exact Tally ledger name, the same string you sent to the refresh."
+            },
+            {
+              "key": "range_key",
+              "value": "20260401:20261017",
+              "description": "Which pulled window to read, as `from:to`. Omit for the most recent; `available_ranges` lists what is stored.",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "One ledger's vouchers, as Tally's Ledger report shows them.\n\nPulled from Tally automatically by the Connector for a company whose application has `report.ledger` enabled — there is no request step, just read. `ledger_name` is the exact Tally ledger name. Every ledger is synced, so any ledger can be read. Check `fetch.missing_months`: non-empty means the statement is partial. Send the company as `X-Bizmitra-Company` (set from `{{company_id}}`) or as `company_reference`. The response's `freshness` block says how current the stored copy is (`data_status`, `data_as_of`)."
+      },
+      "response": []
+    },
+    {
+      "name": "Read cash flow (12 months)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Bizmitra-Company",
+            "value": "{{company_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/cash-flow",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "cash-flow"
           ],
           "query": [
             {
               "key": "range_key",
               "value": "current",
-              "description": "\"from:to\" or \"current\".",
+              "description": "\"from:to\" or \"current\" (the report ignores dates).",
               "disabled": true
             }
           ]
         },
-        "description": "Read the stored Profit & Loss A/c line items (full company period).\n\nReads the stored P&L line items for one company (trigger it first via `POST /api/v1/profit-loss/refresh`). Params: `company_id` (REQUIRED), `range_key` (`current`). Two-column layout: each line has EITHER `sub_amount` (a sub-line like Opening/Closing Stock) OR `main_amount` (a main total like Sales / Cost of Sales), not both; `*_number` fields are parsed. Full company period only — the date window is ignored. Terminal in Flask — nothing is stored in Bizmitra."
+        "description": "Monthly cash inflow, outflow and net for the year.\n\nPulled from Tally automatically by the Connector for a company whose application has `report.cash_flow` enabled — there is no request step, just read. Send the company as `X-Bizmitra-Company` (set from `{{company_id}}`) or as `company_reference`. The response's `freshness` block says how current the stored copy is (`data_status`, `data_as_of`)."
+      },
+      "response": []
+    },
+    {
+      "name": "Read cash/bank book",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Bizmitra-Company",
+            "value": "{{company_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/cash-bank-book",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "cash-bank-book"
+          ],
+          "query": [
+            {
+              "key": "range_key",
+              "value": "current",
+              "description": "\"from:to\" (Tally yyyymmdd) or \"current\".",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Closing balance of every cash and bank ledger, with its group.\n\nPulled from Tally automatically by the Connector for a company whose application has `report.cash_bank_book` enabled — there is no request step, just read. Send the company as `X-Bizmitra-Company` (set from `{{company_id}}`) or as `company_reference`. The response's `freshness` block says how current the stored copy is (`data_status`, `data_as_of`)."
+      },
+      "response": []
+    },
+    {
+      "name": "Read bank reconciliation (uncleared)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Bizmitra-Company",
+            "value": "{{company_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/bank-recon",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "bank-recon"
+          ],
+          "query": [
+            {
+              "key": "bank_ledger",
+              "value": "HDFC Current A/c",
+              "description": "Narrow to one bank ledger. Omit for all.",
+              "disabled": true
+            },
+            {
+              "key": "limit",
+              "value": "500",
+              "description": "Page size (default 500, max 2000).",
+              "disabled": true
+            },
+            {
+              "key": "offset",
+              "value": "0",
+              "description": "Page offset.",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Bank entries not yet cleared. `bank_ledger` narrows to one bank.\n\nPulled from Tally automatically by the Connector for a company whose application has `report.bank_recon` enabled — there is no request step, just read. An empty list means everything is reconciled. Send the company as `X-Bizmitra-Company` (set from `{{company_id}}`) or as `company_reference`. The response's `freshness` block says how current the stored copy is (`data_status`, `data_as_of`)."
+      },
+      "response": []
+    },
+    {
+      "name": "Read GST returns (GSTR-1 / GSTR-3B)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Bizmitra-Company",
+            "value": "{{company_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/gst",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "gst"
+          ],
+          "query": [
+            {
+              "key": "statement_type",
+              "value": "gstr1",
+              "description": "`gstr1` or `gstr3b`. Omit for both.",
+              "disabled": true
+            },
+            {
+              "key": "period_key",
+              "value": "20260901:20260930",
+              "description": "One return period, `{from}:{to}` in yyyymmdd (whole calendar months).",
+              "disabled": true
+            },
+            {
+              "key": "section_key",
+              "value": "B2C_SMALL",
+              "description": "Drill into one section's vouchers instead of the rollup.",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "The GSTR-1 and GSTR-3B return view.\n\nPulled from Tally automatically by the Connector for a company whose application has `report.gst` enabled — there is no request step, just read. Filters: `statement_type`, `period_key`, `section_key`. Send the company as `X-Bizmitra-Company` (set from `{{company_id}}`) or as `company_reference`. The response's `freshness` block says how current the stored copy is (`data_status`, `data_as_of`)."
+      },
+      "response": []
+    },
+    {
+      "name": "Read GST periods held",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Bizmitra-Company",
+            "value": "{{company_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/gst/stats",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "gst",
+            "stats"
+          ]
+        },
+        "description": "Which GST periods are held, and when each last refreshed.\n\nPulled from Tally automatically by the Connector for a company whose application has `report.gst` enabled — there is no request step, just read. Send the company as `X-Bizmitra-Company` (set from `{{company_id}}`) or as `company_reference`. The response's `freshness` block says how current the stored copy is (`data_status`, `data_as_of`)."
+      },
+      "response": []
+    },
+    {
+      "name": "Read bills receivable",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Bizmitra-Company",
+            "value": "{{company_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/bills-receivable",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "bills-receivable"
+          ],
+          "query": [
+            {
+              "key": "party",
+              "value": "ABC Traders",
+              "description": "Only this party's bills (exact Tally ledger name). Omit for every party.",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Pending bills the company is owed. `party` narrows to one party.\n\nPulled from Tally automatically by the Connector for a company whose application has `report.bills_receivable` enabled — there is no request step, just read. Send the company as `X-Bizmitra-Company` (set from `{{company_id}}`) or as `company_reference`. The response's `freshness` block says how current the stored copy is (`data_status`, `data_as_of`)."
+      },
+      "response": []
+    },
+    {
+      "name": "Read bills payable",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{key_id}}:{{secret}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "X-Bizmitra-Company",
+            "value": "{{company_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/bills-payable",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "bills-payable"
+          ],
+          "query": [
+            {
+              "key": "party",
+              "value": "Shree Traders",
+              "description": "Only this party's bills (exact Tally ledger name). Omit for every party.",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Pending bills the company owes. `party` narrows to one party.\n\nPulled from Tally automatically by the Connector for a company whose application has `report.bills_payable` enabled — there is no request step, just read. Send the company as `X-Bizmitra-Company` (set from `{{company_id}}`) or as `company_reference`. The response's `freshness` block says how current the stored copy is (`data_status`, `data_as_of`)."
       },
       "response": []
     },
@@ -1127,54 +1552,6 @@
       "response": []
     },
     {
-      "name": "Refresh TDS bills (one party)",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer {{key_id}}:{{secret}}"
-          },
-          {
-            "key": "Accept",
-            "value": "application/json"
-          },
-          {
-            "key": "X-Bizmitra-Company",
-            "value": "{{company_id}}"
-          },
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n    \"company_id\": xx,\n    \"tds_ledger\": \"Tds Payable on Job Work\",\n    \"party\": \"Contract Amar\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "{{base_url}}/api/v1/tds/bills/refresh",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "tds",
-            "bills",
-            "refresh"
-          ]
-        },
-        "description": "Enqueue a bill-wise TDS pull for one party under a TDS ledger.\n\nEnqueues a bill-wise TDS breakup for ONE party; the paired Connector runs it on its next poll (~seconds), then read via `GET /api/v1/tds/bills`. Async — returns a `job_id`. Body: `company_id` (REQUIRED), `tds_ledger` (REQUIRED), `party` (REQUIRED), `from_date`/`to_date` (Tally yyyymmdd, optional), `transaction_id` (optional idempotency key). A repeat request for the same ledger+party+window REPLACES the stored rows. Needs the `report.tds` capability."
-      },
-      "response": []
-    },
-    {
       "name": "Read TDS bills (one party)",
       "request": {
         "method": "GET",
@@ -1227,7 +1604,7 @@
             }
           ]
         },
-        "description": "Read one party's stored bill-wise TDS breakup.\n\nReads the stored bill-wise TDS breakup for ONE party (trigger it first via `POST /api/v1/tds/bills/refresh`). Params: `company_id` (REQUIRED), `party` (REQUIRED), `tds_ledger` (narrow to one ledger), `range_key` (`from:to` or `current`). Each row carries `bill_date`/`bill_ref`/`due_date` (Tally display strings), `opening`/`closing` (raw text + parsed `*_number`), and `overdue_days`. Terminal in Flask — nothing stored in Bizmitra."
+        "description": "Read one party's stored bill-wise TDS breakup.\n\nReads the stored bill-wise TDS breakup for ONE party. The Connector pushes every party's bills automatically with the TDS summary — no request step, just read. Params: `company_id` (REQUIRED), `party` (REQUIRED), `tds_ledger` (narrow to one ledger), `range_key` (`from:to` or `current`). Each row carries `bill_date`/`bill_ref`/`due_date` (Tally display strings), `opening`/`closing` (raw text + parsed `*_number`), and `overdue_days`. Terminal in Flask — nothing stored in Bizmitra."
       },
       "response": []
     },
