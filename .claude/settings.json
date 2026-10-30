@@ -1,0 +1,57 @@
+{
+    "$schema": "https://json.schemastore.org/claude-code-settings.json",
+    "permissions": {
+        "allow": [
+            "Read(./docs/**)",
+            "Read(./postman/**)",
+            "Read(./mcp-server/**)",
+            "Read(./*.md)",
+
+            "Edit(./docs/**)",
+            "Edit(./postman/**)",
+            "Edit(./mcp-server/**)",
+            "Edit(./*.md)",
+
+            "Bash(node --check *)",
+            "Bash(npm ls*)",
+            "Bash(npm test)",
+            "Bash(git checkout *)",
+            "Bash(git switch *)",
+            "Bash(git commit *)",
+            "Bash(git push *)",
+
+            "Bash(git status)",
+            "Bash(git diff *)",
+            "Bash(git log *)",
+            "Bash(git show *)",
+            "Bash(git branch)",
+            "Bash(git remote -v)"
+        ],
+
+        "deny": [
+            "Read(./.env)",
+            "Read(./mcp-server/.env)",
+            "Read(./mcp-server/.env.local)",
+            "Read(./mcp-server/node_modules/**)",
+
+            "Edit(./.env)",
+            "Edit(./mcp-server/.env)",
+            "Edit(./mcp-server/.env.local)",
+            "Edit(./mcp-server/node_modules/**)",
+            "Edit(./LICENSE)",
+
+            "Bash(rm -rf *)",
+            "Bash(curl *)",
+            "Bash(wget *)",
+
+            "Bash(git clone *)",
+            "Bash(git reset *)",
+            "Bash(git clean *)",
+            "Bash(git push --force*)",
+
+            "Bash(npm publish *)",
+            "Bash(npm install *)",
+            "Bash(npm uninstall *)"
+        ]
+    }
+}
